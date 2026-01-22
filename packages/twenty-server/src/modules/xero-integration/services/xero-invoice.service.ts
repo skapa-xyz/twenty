@@ -1,7 +1,10 @@
 // packages/twenty-server/src/modules/xero-integration/services/xero-invoice.service.ts
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+
 import { CustomError } from 'twenty-shared/utils';
+
+import { XeroClientService } from './xero-client.service';
 
 /**
  * Invoice line item structure for Xero API
@@ -78,6 +81,75 @@ export interface OpportunityInvoiceData {
 }
 
 /**
+ * Xero API line item structure (PascalCase)
+ */
+interface XeroApiLineItem {
+  Description: string;
+  Quantity: number;
+  UnitAmount: number;
+  AccountCode?: string;
+  TaxType?: string;
+  LineAmount?: number;
+}
+
+/**
+ * Xero API contact structure (PascalCase)
+ */
+interface XeroApiContact {
+  ContactID?: string;
+  Name?: string;
+  FirstName?: string;
+  LastName?: string;
+  EmailAddress?: string;
+}
+
+/**
+ * Xero API invoice request structure (PascalCase)
+ */
+interface XeroApiInvoice {
+  InvoiceID?: string;
+  Type: string;
+  Status: string;
+  LineAmountTypes: string;
+  Contact?: XeroApiContact;
+  LineItems?: XeroApiLineItem[];
+  Date?: string;
+  DueDate?: string;
+  Reference?: string;
+  InvoiceNumber?: string;
+}
+
+/**
+ * Xero API invoice response structure (PascalCase)
+ */
+interface XeroApiInvoiceResponse {
+  InvoiceID: string;
+  InvoiceNumber: string;
+  Reference?: string;
+  Type: string;
+  Contact: XeroApiContact;
+  Date: string;
+  DueDate: string;
+  Status: string;
+  LineAmountTypes: string;
+  LineItems: XeroApiLineItem[];
+  SubTotal: number;
+  TotalTax: number;
+  Total: number;
+  AmountDue: number;
+  AmountPaid: number;
+  CurrencyCode: string;
+  UpdatedDateUTC: string;
+}
+
+/**
+ * Xero API response wrapper
+ */
+interface XeroInvoicesResponse {
+  Invoices: XeroApiInvoiceResponse[];
+}
+
+/**
  * Exception codes for Xero Invoice Service
  */
 export enum XeroInvoiceServiceExceptionCode {
@@ -103,10 +175,7 @@ export class XeroInvoiceService {
   private readonly SUCCESS_FEE_ACCOUNT_CODE = '200'; // Revenue account
   private readonly TAX_TYPE = 'OUTPUT2'; // GST on Income (10% in Australia)
 
-  constructor(
-    // XeroClientService will be injected here once implemented
-    // private readonly xeroClientService: XeroClientService,
-  ) {}
+  constructor(private readonly xeroClientService: XeroClientService) {}
 
   /**
    * Creates an invoice in Xero
@@ -125,22 +194,23 @@ export class XeroInvoiceService {
     try {
       this.validateInvoiceData(invoiceData);
 
-      // TODO: Once XeroClientService is implemented, use it to make the API call
-      // const xeroClient = await this.xeroClientService.getClient(workspaceId);
-      // const response = await xeroClient.accountingApi.createInvoices(
-      //   xeroClient.tenantId,
-      //   {
-      //     invoices: [this.formatInvoiceForXero(invoiceData)],
-      //   }
-      // );
-
-      // For now, throw an error indicating the client service is needed
-      throw new CustomError(
-        'XeroClientService not yet implemented. This service requires XeroClientService to make API calls to Xero.',
-        XeroInvoiceServiceExceptionCode.XERO_CLIENT_NOT_AVAILABLE,
+      // Create invoice via Xero API
+      const response = await this.xeroClientService.post<XeroInvoicesResponse>(
+        workspaceId,
+        '/Invoices',
+        {
+          Invoices: [this.formatInvoiceForXero(invoiceData)],
+        },
       );
 
-      // return this.formatXeroInvoiceResponse(response.body.invoices[0]);
+      if (!response.Invoices || response.Invoices.length === 0) {
+        throw new CustomError(
+          'Xero API returned empty response when creating invoice',
+          XeroInvoiceServiceExceptionCode.INVOICE_CREATION_FAILED,
+        );
+      }
+
+      return this.formatXeroInvoiceResponse(response.Invoices[0]);
     } catch (error) {
       this.logger.error(
         `Failed to create invoice for workspace ${workspaceId}: ${error.message}`,
@@ -173,23 +243,17 @@ export class XeroInvoiceService {
     );
 
     try {
-      // TODO: Once XeroClientService is implemented, use it to make the API call
-      // const xeroClient = await this.xeroClientService.getClient(workspaceId);
-      // const response = await xeroClient.accountingApi.getInvoice(
-      //   xeroClient.tenantId,
-      //   invoiceId
-      // );
-
-      throw new CustomError(
-        'XeroClientService not yet implemented. This service requires XeroClientService to make API calls to Xero.',
-        XeroInvoiceServiceExceptionCode.XERO_CLIENT_NOT_AVAILABLE,
+      // Retrieve invoice from Xero API
+      const response = await this.xeroClientService.get<XeroInvoicesResponse>(
+        workspaceId,
+        `/Invoices/${invoiceId}`,
       );
 
-      // if (!response.body.invoices || response.body.invoices.length === 0) {
-      //   throw new NotFoundException(`Invoice ${invoiceId} not found`);
-      // }
-      //
-      // return this.formatXeroInvoiceResponse(response.body.invoices[0]);
+      if (!response.Invoices || response.Invoices.length === 0) {
+        throw new NotFoundException(`Invoice ${invoiceId} not found`);
+      }
+
+      return this.formatXeroInvoiceResponse(response.Invoices[0]);
     } catch (error) {
       this.logger.error(
         `Failed to retrieve invoice ${invoiceId} for workspace ${workspaceId}: ${error.message}`,
@@ -224,25 +288,28 @@ export class XeroInvoiceService {
     );
 
     try {
-      // TODO: Once XeroClientService is implemented, use it to make the API call
-      // const xeroClient = await this.xeroClientService.getClient(workspaceId);
-      // const updateData = this.formatInvoiceForXero(data);
-      // updateData.invoiceID = invoiceId;
-      //
-      // const response = await xeroClient.accountingApi.updateInvoice(
-      //   xeroClient.tenantId,
-      //   invoiceId,
-      //   {
-      //     invoices: [updateData],
-      //   }
-      // );
+      // Format the update data for Xero API
+      const updateData = this.formatInvoiceForXero(data);
 
-      throw new CustomError(
-        'XeroClientService not yet implemented. This service requires XeroClientService to make API calls to Xero.',
-        XeroInvoiceServiceExceptionCode.XERO_CLIENT_NOT_AVAILABLE,
+      updateData.InvoiceID = invoiceId;
+
+      // Update invoice via Xero API
+      const response = await this.xeroClientService.post<XeroInvoicesResponse>(
+        workspaceId,
+        `/Invoices/${invoiceId}`,
+        {
+          Invoices: [updateData],
+        },
       );
 
-      // return this.formatXeroInvoiceResponse(response.body.invoices[0]);
+      if (!response.Invoices || response.Invoices.length === 0) {
+        throw new CustomError(
+          'Xero API returned empty response when updating invoice',
+          XeroInvoiceServiceExceptionCode.INVOICE_UPDATE_FAILED,
+        );
+      }
+
+      return this.formatXeroInvoiceResponse(response.Invoices[0]);
     } catch (error) {
       this.logger.error(
         `Failed to update invoice ${invoiceId} for workspace ${workspaceId}: ${error.message}`,
@@ -366,37 +433,50 @@ export class XeroInvoiceService {
   /**
    * Formats invoice data for Xero API
    * @param data - Invoice data to format
-   * @returns Formatted invoice object for Xero API
+   * @returns Formatted invoice object for Xero API with PascalCase fields
    */
-  private formatInvoiceForXero(data: Partial<XeroInvoiceData>): any {
-    const invoice: any = {
-      type: data.type || 'ACCREC',
-      status: data.status || 'DRAFT',
-      lineAmountTypes: data.lineAmountTypes || 'Exclusive',
+  private formatInvoiceForXero(data: Partial<XeroInvoiceData>): XeroApiInvoice {
+    const invoice: XeroApiInvoice = {
+      Type: data.type || 'ACCREC',
+      Status: data.status || 'DRAFT',
+      LineAmountTypes: data.lineAmountTypes || 'Exclusive',
     };
 
     if (data.contact) {
-      invoice.contact = data.contact;
+      invoice.Contact = {
+        ContactID: data.contact.contactID,
+        Name: data.contact.name,
+        FirstName: data.contact.firstName,
+        LastName: data.contact.lastName,
+        EmailAddress: data.contact.emailAddress,
+      };
     }
 
     if (data.lineItems) {
-      invoice.lineItems = data.lineItems;
+      invoice.LineItems = data.lineItems.map((item) => ({
+        Description: item.description,
+        Quantity: item.quantity,
+        UnitAmount: item.unitAmount,
+        AccountCode: item.accountCode,
+        TaxType: item.taxType,
+        LineAmount: item.lineAmount,
+      }));
     }
 
     if (data.date) {
-      invoice.date = this.formatDateForXero(data.date);
+      invoice.Date = this.formatDateForXero(data.date);
     }
 
     if (data.dueDate) {
-      invoice.dueDate = this.formatDateForXero(data.dueDate);
+      invoice.DueDate = this.formatDateForXero(data.dueDate);
     }
 
     if (data.reference) {
-      invoice.reference = data.reference;
+      invoice.Reference = data.reference;
     }
 
     if (data.invoiceNumber) {
-      invoice.invoiceNumber = data.invoiceNumber;
+      invoice.InvoiceNumber = data.invoiceNumber;
     }
 
     return invoice;
@@ -407,25 +487,40 @@ export class XeroInvoiceService {
    * @param xeroInvoice - Raw Xero invoice response
    * @returns Formatted invoice object
    */
-  private formatXeroInvoiceResponse(xeroInvoice: any): XeroInvoice {
+  private formatXeroInvoiceResponse(
+    xeroInvoice: XeroApiInvoiceResponse,
+  ): XeroInvoice {
     return {
-      invoiceID: xeroInvoice.invoiceID,
-      invoiceNumber: xeroInvoice.invoiceNumber,
-      reference: xeroInvoice.reference,
-      type: xeroInvoice.type,
-      contact: xeroInvoice.contact,
-      date: xeroInvoice.date,
-      dueDate: xeroInvoice.dueDate,
-      status: xeroInvoice.status,
-      lineAmountTypes: xeroInvoice.lineAmountTypes,
-      lineItems: xeroInvoice.lineItems,
-      subTotal: xeroInvoice.subTotal,
-      totalTax: xeroInvoice.totalTax,
-      total: xeroInvoice.total,
-      amountDue: xeroInvoice.amountDue,
-      amountPaid: xeroInvoice.amountPaid,
-      currencyCode: xeroInvoice.currencyCode,
-      updatedDateUTC: xeroInvoice.updatedDateUTC,
+      invoiceID: xeroInvoice.InvoiceID,
+      invoiceNumber: xeroInvoice.InvoiceNumber,
+      reference: xeroInvoice.Reference,
+      type: xeroInvoice.Type,
+      contact: {
+        contactID: xeroInvoice.Contact.ContactID,
+        name: xeroInvoice.Contact.Name,
+        firstName: xeroInvoice.Contact.FirstName,
+        lastName: xeroInvoice.Contact.LastName,
+        emailAddress: xeroInvoice.Contact.EmailAddress,
+      },
+      date: xeroInvoice.Date,
+      dueDate: xeroInvoice.DueDate,
+      status: xeroInvoice.Status,
+      lineAmountTypes: xeroInvoice.LineAmountTypes,
+      lineItems: xeroInvoice.LineItems.map((item) => ({
+        description: item.Description,
+        quantity: item.Quantity,
+        unitAmount: item.UnitAmount,
+        accountCode: item.AccountCode,
+        taxType: item.TaxType,
+        lineAmount: item.LineAmount,
+      })),
+      subTotal: xeroInvoice.SubTotal,
+      totalTax: xeroInvoice.TotalTax,
+      total: xeroInvoice.Total,
+      amountDue: xeroInvoice.AmountDue,
+      amountPaid: xeroInvoice.AmountPaid,
+      currencyCode: xeroInvoice.CurrencyCode,
+      updatedDateUTC: xeroInvoice.UpdatedDateUTC,
     };
   }
 
@@ -471,6 +566,7 @@ export class XeroInvoiceService {
     // Engagement fee: due in 7 days
     // Success fee: due in 14 days
     const daysToAdd = invoiceType === 'engagement_fee' ? 7 : 14;
+
     dueDate.setDate(dueDate.getDate() + daysToAdd);
 
     return dueDate;

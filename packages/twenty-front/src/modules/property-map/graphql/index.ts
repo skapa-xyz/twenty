@@ -4,4 +4,6 @@ export {
   PROPERTIES_WITHIN_RADIUS,
   PROPERTIES_IN_POLYGON,
   GET_PROPERTY,
-} from './queries';
+  FIND_PROPERTIES_IN_BOUNDS,
+  GET_PROPERTY_DETAILS,
+} from './property-map.queries';

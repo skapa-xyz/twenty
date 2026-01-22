@@ -42,16 +42,16 @@ export const PROPERTIES_IN_BOUNDING_BOX = gql`
   ${PROPERTY_MAP_FRAGMENT}
   query PropertiesInBoundingBox(
     $minLat: Float!
-    $maxLat: Float!
     $minLng: Float!
+    $maxLat: Float!
     $maxLng: Float!
-    $filters: PropertyFilters
+    $filters: PropertyFiltersInput
     $limit: Int
   ) {
     propertiesInBoundingBox(
       minLat: $minLat
-      maxLat: $maxLat
       minLng: $minLng
+      maxLat: $maxLat
       maxLng: $maxLng
       filters: $filters
       limit: $limit
@@ -68,15 +68,15 @@ export const PROPERTIES_IN_BOUNDING_BOX = gql`
 export const PROPERTIES_WITHIN_RADIUS = gql`
   ${PROPERTY_MAP_FRAGMENT}
   query PropertiesWithinRadius(
-    $lat: Float!
-    $lng: Float!
+    $latitude: Float!
+    $longitude: Float!
     $radiusKm: Float!
-    $filters: PropertyFilters
+    $filters: PropertyFiltersInput
     $limit: Int
   ) {
     propertiesWithinRadius(
-      lat: $lat
-      lng: $lng
+      latitude: $latitude
+      longitude: $longitude
       radiusKm: $radiusKm
       filters: $filters
       limit: $limit
@@ -94,7 +94,7 @@ export const PROPERTIES_IN_POLYGON = gql`
   ${PROPERTY_MAP_FRAGMENT}
   query PropertiesInPolygon(
     $coordinates: [[Float!]!]!
-    $filters: PropertyFilters
+    $filters: PropertyFiltersInput
     $limit: Int
   ) {
     propertiesInPolygon(
