@@ -1,4 +1,4 @@
-import { renderWithProviders } from '~/test-utils';
+import { renderWithProviders } from '../../__tests__/testUtils';
 import { PropertyMapMarker } from '../PropertyMapMarker';
 import type { Property } from '../../types/property-map.types';
 

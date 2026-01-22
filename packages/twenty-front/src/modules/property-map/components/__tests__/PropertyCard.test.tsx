@@ -1,12 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { PropertyCard } from '@/property-map/components/PropertyCard';
-import type { Property } from '@/property-map/types/property-map.types';
-import { getJestMetadataAndApolloMocksAndActionMenuWrappers } from '~/testing/jest/getJestMetadataAndApolloMocksAndActionMenuWrappers';
-
-const { Wrapper: MockedWrapper } =
-  getJestMetadataAndApolloMocksAndActionMenuWrappers({
-    apolloMocks: [],
-  });
+import { screen, fireEvent } from '@testing-library/react';
+import { renderWithProviders } from '../../__tests__/testUtils';
+import { PropertyCard } from '../PropertyCard';
+import type { Property } from '../../types/property-map.types';
 
 const mockProperty: Property = {
   id: 'test-property-1',
@@ -27,11 +22,7 @@ const mockProperty: Property = {
 
 describe('PropertyCard', () => {
   it('should render property details correctly', () => {
-    render(
-      <MockedWrapper>
-        <PropertyCard property={mockProperty} />
-      </MockedWrapper>,
-    );
+    renderWithProviders(<PropertyCard property={mockProperty} />);
 
     expect(screen.getByText('123 Test Street, Sydney NSW 2000')).toBeInTheDocument();
     expect(screen.getByText('$850,000')).toBeInTheDocument();
@@ -43,11 +34,7 @@ describe('PropertyCard', () => {
   });
 
   it('should render with image when photo is available', () => {
-    render(
-      <MockedWrapper>
-        <PropertyCard property={mockProperty} />
-      </MockedWrapper>,
-    );
+    renderWithProviders(<PropertyCard property={mockProperty} />);
 
     const image = screen.getByAltText('123 Test Street, Sydney NSW 2000');
     expect(image).toBeInTheDocument();
@@ -60,11 +47,7 @@ describe('PropertyCard', () => {
       photos: undefined,
     };
 
-    render(
-      <MockedWrapper>
-        <PropertyCard property={propertyWithoutPhoto} />
-      </MockedWrapper>,
-    );
+    renderWithProviders(<PropertyCard property={propertyWithoutPhoto} />);
 
     expect(screen.getByText('No Image')).toBeInTheDocument();
   });
@@ -75,20 +58,14 @@ describe('PropertyCard', () => {
       askingPrice: null,
     };
 
-    render(
-      <MockedWrapper>
-        <PropertyCard property={propertyWithoutPrice} />
-      </MockedWrapper>,
-    );
+    renderWithProviders(<PropertyCard property={propertyWithoutPrice} />);
 
     expect(screen.getByText('Price on Application')).toBeInTheDocument();
   });
 
   it('should render in compact mode when compact prop is true', () => {
-    const { container } = render(
-      <MockedWrapper>
-        <PropertyCard property={mockProperty} compact />
-      </MockedWrapper>,
+    const { container } = renderWithProviders(
+      <PropertyCard property={mockProperty} compact />,
     );
 
     const card = container.querySelector('[data-testid="property-card-test-property-1"]');
@@ -97,10 +74,8 @@ describe('PropertyCard', () => {
 
   it('should handle onClick event', () => {
     const handleClick = jest.fn();
-    render(
-      <MockedWrapper>
-        <PropertyCard property={mockProperty} onClick={handleClick} />
-      </MockedWrapper>,
+    renderWithProviders(
+      <PropertyCard property={mockProperty} onClick={handleClick} />,
     );
 
     const card = screen.getByTestId('property-card-test-property-1');
@@ -116,11 +91,7 @@ describe('PropertyCard', () => {
       landSize: null,
     };
 
-    render(
-      <MockedWrapper>
-        <PropertyCard property={propertyWithoutAttributes} />
-      </MockedWrapper>,
-    );
+    renderWithProviders(<PropertyCard property={propertyWithoutAttributes} />);
 
     // Should not render any attribute icons or values
     expect(screen.queryByText('3')).not.toBeInTheDocument();
@@ -139,10 +110,8 @@ describe('PropertyCard', () => {
     ];
 
     statuses.forEach((status) => {
-      const { unmount } = render(
-        <MockedWrapper>
-          <PropertyCard property={{ ...mockProperty, listingStatus: status }} />
-        </MockedWrapper>,
+      const { unmount } = renderWithProviders(
+        <PropertyCard property={{ ...mockProperty, listingStatus: status }} />,
       );
 
       const formattedStatus = status.replace('_', ' ');
@@ -158,11 +127,7 @@ describe('PropertyCard', () => {
       askingPrice: 2500000,
     };
 
-    render(
-      <MockedWrapper>
-        <PropertyCard property={expensiveProperty} />
-      </MockedWrapper>,
-    );
+    renderWithProviders(<PropertyCard property={expensiveProperty} />);
 
     expect(screen.getByText('$2,500,000')).toBeInTheDocument();
   });
@@ -178,11 +143,7 @@ describe('PropertyCard', () => {
       landSize: 0,
     };
 
-    render(
-      <MockedWrapper>
-        <PropertyCard property={propertyWithZeroAttributes} />
-      </MockedWrapper>,
-    );
+    renderWithProviders(<PropertyCard property={propertyWithZeroAttributes} />);
 
     // Should render zero values (0 is a valid number)
     const zeroTexts = screen.getAllByText('0');

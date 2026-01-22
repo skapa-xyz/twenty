@@ -34,10 +34,10 @@ export class PropertyFiltersInput {
  */
 @InputType()
 export class CoordinateInput {
-  @Field(() => Float, description: 'Longitude')
+  @Field(() => Float, { description: 'Longitude' })
   lng: number;
 
-  @Field(() => Float, description: 'Latitude')
+  @Field(() => Float, { description: 'Latitude' })
   lat: number;
 }
 

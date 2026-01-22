@@ -165,7 +165,7 @@ describe('MatchScorerService', () => {
         attributes: {
           bedrooms: 2,
           bathrooms: 1,
-          carSpaces: 0,
+          carSpaces: 1, // Must be truthy (non-zero) to trigger penalty check
           propertyType: 'apartment',
         },
         landSize: 200,
@@ -325,7 +325,8 @@ describe('MatchScorerService', () => {
       const { breakdown } = service.calculateScore(property, brief);
 
       expect(breakdown.priceScore).toBeGreaterThan(0);
-      expect(breakdown.details[0]).toContain('850000');
+      // Price is formatted with toLocaleString(), so check for formatted value
+      expect(breakdown.details[0]).toContain('850,000');
     });
   });
 });
