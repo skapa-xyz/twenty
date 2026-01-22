@@ -61,9 +61,11 @@ export const typeORMCoreModuleOptions: TypeOrmModuleOptions = {
       ? [
           `${isJest ? 'src/' : 'dist/'}database/typeorm/core/migrations/common/*{.ts,.js}`,
           `${isJest ? 'src/' : 'dist/'}database/typeorm/core/migrations/billing/*{.ts,.js}`,
+          `${isJest ? 'src/' : 'dist/'}database/typeorm/core/migrations/real-estate/*{.ts,.js}`,
         ]
       : [
           `${isJest ? 'src/' : 'dist/'}database/typeorm/core/migrations/common/*{.ts,.js}`,
+          `${isJest ? 'src/' : 'dist/'}database/typeorm/core/migrations/real-estate/*{.ts,.js}`,
         ],
   ssl:
     process.env.PG_SSL_ALLOW_SELF_SIGNED === 'true'

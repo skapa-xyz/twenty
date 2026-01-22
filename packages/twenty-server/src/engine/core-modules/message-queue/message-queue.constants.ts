@@ -19,4 +19,6 @@ export enum MessageQueue {
   serverlessFunctionQueue = 'serverless-function-queue',
   triggerQueue = 'trigger-queue',
   aiQueue = 'ai-queue',
+  propertyMatchQueue = 'property-match-queue',
+  xeroInvoiceQueue = 'xero-invoice-queue',
 }

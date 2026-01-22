@@ -13,6 +13,7 @@ import { SpreadsheetImportProvider } from '@/spreadsheet-import/provider/compone
 
 import { RecordIndexCalendarContainer } from '@/object-record/record-index/components/RecordIndexCalendarContainer';
 import { RecordIndexFiltersToContextStoreEffect } from '@/object-record/record-index/components/RecordIndexFiltersToContextStoreEffect';
+import { PropertyMapContainer } from '@/property-map/components/PropertyMapContainer';
 import { ViewBar } from '@/views/components/ViewBar';
 import { ViewType } from '@/views/types/ViewType';
 
@@ -81,6 +82,15 @@ export const RecordIndexContainer = () => {
             <RecordIndexCalendarContainer
               recordCalendarInstanceId={recordIndexId}
               viewBarInstanceId={recordIndexId}
+            />
+          </StyledContainerWithPadding>
+        )}
+        {recordIndexViewType === ViewType.Map && (
+          <StyledContainerWithPadding>
+            <PropertyMapContainer
+              recordMapInstanceId={recordIndexId}
+              viewBarInstanceId={recordIndexId}
+              objectNameSingular={objectNameSingular}
             />
           </StyledContainerWithPadding>
         )}
