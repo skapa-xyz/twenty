@@ -19,8 +19,8 @@ Custom map marker component for displaying individual properties on the map.
 ## Usage
 
 ```tsx
-import { PropertyMapMarker } from '@/modules/property-map/components';
-import type { Property } from '@/modules/property-map/types/property-map.types';
+import { PropertyMapMarker } from '@/property-map/components';
+import type { Property } from '@/property-map/types/property-map.types';
 
 const MyMapComponent = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);

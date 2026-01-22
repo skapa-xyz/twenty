@@ -2,11 +2,11 @@ import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 
-import { FIND_PROPERTIES_IN_BOUNDS } from '@/modules/property-map/graphql/property-map.queries';
+import { FIND_PROPERTIES_IN_BOUNDS } from '@/property-map/graphql/property-map.queries';
 import type {
   BoundingBox,
   Property,
-} from '@/modules/property-map/types/property-map.types';
+} from '@/property-map/types/property-map.types';
 
 export interface UsePropertyMapDataResult {
   properties: Property[];
