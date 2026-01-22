@@ -17,4 +17,6 @@ export const MESSAGE_QUEUE_PRIORITY = {
   [MessageQueue.deleteCascadeQueue]: 6,
   [MessageQueue.cronQueue]: 7,
   [MessageQueue.aiQueue]: 5,
+  [MessageQueue.propertyMatchQueue]: 4,
+  [MessageQueue.xeroInvoiceQueue]: 3,
 };

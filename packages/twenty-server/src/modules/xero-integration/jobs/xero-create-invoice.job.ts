@@ -1,11 +1,9 @@
 import { Logger } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 
 import { Process } from 'src/engine/core-modules/message-queue/decorators/process.decorator';
 import { Processor } from 'src/engine/core-modules/message-queue/decorators/processor.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
-import { TwentyORMManager } from 'src/engine/twenty-orm/twenty-orm.manager';
+import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { OpportunityWorkspaceEntity } from 'src/modules/opportunity/standard-objects/opportunity.workspace-entity';
 import {
   OpportunityInvoiceData,
@@ -67,9 +65,7 @@ export class XeroCreateInvoiceJob {
 
   constructor(
     private readonly xeroInvoiceService: XeroInvoiceService,
-    private readonly twentyORMManager: TwentyORMManager,
-    @InjectDataSource('core')
-    private readonly coreDataSource: DataSource,
+    private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
   ) {}
 
   /**
@@ -98,7 +94,7 @@ export class XeroCreateInvoiceJob {
     try {
       // Get repository for workspace-specific opportunity table
       const opportunityRepository =
-        await this.twentyORMManager.getRepository<OpportunityWorkspaceEntity>(
+        await this.globalWorkspaceOrmManager.getRepository<OpportunityWorkspaceEntity>(
           workspaceId,
           'opportunity',
         );

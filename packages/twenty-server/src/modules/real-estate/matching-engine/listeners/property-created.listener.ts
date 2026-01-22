@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
+
+import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
+import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
+import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
+
 import {
-  PROPERTY_MATCH_QUEUE,
   PropertyMatchJobData,
+  PropertyMatchProcessor,
 } from '../jobs/property-match.job';
 
 export interface PropertyCreatedEvent {
@@ -15,25 +18,20 @@ export interface PropertyCreatedEvent {
 @Injectable()
 export class PropertyCreatedListener {
   constructor(
-    @InjectQueue(PROPERTY_MATCH_QUEUE)
-    private readonly matchQueue: Queue<PropertyMatchJobData>,
+    @InjectMessageQueue(MessageQueue.propertyMatchQueue)
+    private readonly messageQueueService: MessageQueueService,
   ) {}
 
   @OnEvent('property.created')
   async handlePropertyCreated(event: PropertyCreatedEvent): Promise<void> {
-    await this.matchQueue.add(
+    await this.messageQueueService.add<PropertyMatchJobData>(
+      PropertyMatchProcessor.name,
       {
         propertyId: event.propertyId,
         workspaceId: event.workspaceId,
       },
       {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 1000,
-        },
-        removeOnComplete: 100,
-        removeOnFail: 50,
+        retryLimit: 3,
       },
     );
   }

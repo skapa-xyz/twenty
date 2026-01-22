@@ -134,7 +134,7 @@ export class XeroTokenRefreshCronJob {
         failureCount++;
         // Log the error but continue processing other connections
         this.exceptionHandlerService.captureExceptions([error], {
-          extra: {
+          additionalData: {
             workspaceId: connection.workspaceId,
             tenantId: connection.tenantId,
             tokenExpiresAt: connection.tokenExpiresAt,

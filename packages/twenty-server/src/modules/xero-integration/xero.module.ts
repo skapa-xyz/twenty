@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
-import { BullModule } from '@nestjs/bull';
 
 import { XeroConnectionEntity } from './entities/xero-connection.entity';
 import { XeroAuthController } from './controllers/xero-auth.controller';
@@ -11,8 +10,9 @@ import { XeroClientService } from './services/xero-client.service';
 import { XeroContactService } from './services/xero-contact.service';
 import { XeroInvoiceService } from './services/xero-invoice.service';
 import { XeroWebhookService } from './services/xero-webhook.service';
-import { OpportunityStageChangedListener, XERO_INVOICE_QUEUE } from './listeners/opportunity-stage-changed.listener';
+import { OpportunityStageChangedListener } from './listeners/opportunity-stage-changed.listener';
 import { XeroTokenRefreshCronJob } from './jobs/xero-token-refresh.cron.job';
+import { XeroCreateInvoiceJob } from './jobs/xero-create-invoice.job';
 
 /**
  * Xero Integration Module
@@ -57,10 +57,6 @@ import { XeroTokenRefreshCronJob } from './jobs/xero-token-refresh.cron.job';
       timeout: 10000, // 10 second timeout for Xero API calls
       maxRedirects: 5,
     }),
-    // Register the BullMQ queue for invoice creation jobs
-    BullModule.registerQueue({
-      name: XERO_INVOICE_QUEUE,
-    }),
   ],
   controllers: [
     // OAuth authentication endpoints
@@ -77,6 +73,8 @@ import { XeroTokenRefreshCronJob } from './jobs/xero-token-refresh.cron.job';
     XeroWebhookService,
     // Event listeners
     OpportunityStageChangedListener,
+    // Job processors
+    XeroCreateInvoiceJob,
     // Cron jobs
     XeroTokenRefreshCronJob,
   ],
