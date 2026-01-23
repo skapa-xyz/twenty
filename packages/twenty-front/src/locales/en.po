@@ -2769,6 +2769,11 @@ msgstr "Confirm role update"
 msgid "Confirm upgrade"
 msgstr "Confirm upgrade"
 
+#. js-lingui-id: iSLIjg
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Connect"
+msgstr "Connect"
+
 #. js-lingui-id: D8ATlr
 #: src/modules/settings/accounts/components/SettingsNewAccountSection.tsx
 msgid "Connect a new account to your workspace"
@@ -2778,6 +2783,11 @@ msgstr "Connect a new account to your workspace"
 #: src/modules/settings/accounts/components/SettingsAccountsListEmptyStateCard.tsx
 msgid "Connect Account"
 msgstr "Connect Account"
+
+#. js-lingui-id: XGcibY
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+msgid "Connect external services to your workspace"
+msgstr "Connect external services to your workspace"
 
 #. js-lingui-id: Zgi9Fd
 #: src/modules/settings/accounts/components/SettingsAccountsListEmptyStateCard.tsx
@@ -2789,10 +2799,21 @@ msgstr "Connect with Google"
 msgid "Connect with Microsoft"
 msgstr "Connect with Microsoft"
 
+#. js-lingui-id: pItBV7
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Connect your Xero account for accounting integration"
+msgstr "Connect your Xero account for accounting integration"
+
 #. js-lingui-id: 9TzudL
 #: src/pages/settings/accounts/SettingsAccounts.tsx
 msgid "Connected accounts"
 msgstr "Connected accounts"
+
+#. js-lingui-id: bCW+p2
+#. placeholder {0}: connection?.tenantName ?? 'Xero'
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Connected to {0}"
+msgstr "Connected to {0}"
 
 #. js-lingui-id: W4Kgwq
 #: src/modules/settings/accounts/components/SettingsAccountsRowDropdownMenu.tsx
@@ -4048,6 +4069,11 @@ msgstr "Details"
 #: src/modules/action-menu/actions/record-actions/constants/WorkflowActionsConfig.tsx
 msgid "Discard Draft"
 msgstr "Discard Draft"
+
+#. js-lingui-id: +K0AvT
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Disconnect"
+msgstr "Disconnect"
 
 #. js-lingui-id: Xm/s+u
 #: src/modules/settings/accounts/components/SettingsAccountsCalendarChannelsGeneral.tsx
@@ -6452,6 +6478,13 @@ msgstr "Instructions Editor"
 msgid "Instructions for AI"
 msgstr "Instructions for AI"
 
+#. js-lingui-id: nbfdhU
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+#: src/modules/settings/hooks/useSettingsNavigationItems.tsx
+msgid "Integrations"
+msgstr "Integrations"
+
 #. js-lingui-id: RGm66q
 #: src/utils/title-utils.ts
 msgid "Integrations - Settings"
@@ -8349,6 +8382,11 @@ msgstr "Not available for default view"
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownCustomView.tsx
 msgid "Not available on Default View"
 msgstr "Not available on Default View"
+
+#. js-lingui-id: S33tz3
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Not connected"
+msgstr "Not connected"
 
 #. js-lingui-id: 4wUkDk
 #: src/modules/object-record/record-board/record-board-column/utils/getAggregateOperationShortLabel.ts
@@ -11603,6 +11641,11 @@ msgstr "third"
 msgid "Third"
 msgstr "Third"
 
+#. js-lingui-id: KKPDhg
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+msgid "Third-party integrations"
+msgstr "Third-party integrations"
+
 #. js-lingui-id: h4vGCD
 #: src/modules/workflow/workflow-steps/workflow-actions/find-records-action/components/WorkflowEditActionFindRecords.tsx
 msgid "This action can return up to {maxRecordsFormatted} records."
@@ -12880,6 +12923,7 @@ msgstr "Workflows"
 #: src/pages/settings/roles/SettingsRoleAddObjectLevel.tsx
 #: src/pages/settings/members/SettingsWorkspaceMembers.tsx
 #: src/pages/settings/members/SettingsWorkspaceMember.tsx
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
 #: src/pages/settings/emailing-domains/SettingsNewEmailingDomain.tsx
 #: src/pages/settings/emailing-domains/SettingsEmailingDomainDetail.tsx
 #: src/pages/settings/domains/SettingsDomains.tsx
@@ -13002,6 +13046,11 @@ msgstr "X axis"
 #: src/modules/command-menu/pages/page-layout/utils/__tests__/shouldHideChartSetting.test.ts
 msgid "X Axis Data"
 msgstr "X Axis Data"
+
+#. js-lingui-id: YowYEl
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Xero"
+msgstr "Xero"
 
 #. js-lingui-id: fplGg6
 #: src/modules/command-menu/pages/page-layout/utils/getChartAxisNameDisplayOptions.ts

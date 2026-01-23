@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 
+import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
+import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
+
 import { XeroConnectionEntity } from './entities/xero-connection.entity';
 import { XeroAuthController } from './controllers/xero-auth.controller';
 import { XeroWebhookController } from './controllers/xero-webhook.controller';
@@ -58,6 +61,9 @@ import { XeroConnectionResolver } from './resolvers/xero-connection.resolver';
       timeout: 10000, // 10 second timeout for Xero API calls
       maxRedirects: 5,
     }),
+    // Auth modules for JwtAuthGuard dependencies
+    TokenModule,
+    WorkspaceCacheStorageModule,
   ],
   controllers: [
     // OAuth authentication endpoints

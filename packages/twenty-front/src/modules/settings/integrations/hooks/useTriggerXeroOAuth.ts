@@ -1,20 +1,31 @@
 import { useMutation } from '@apollo/client';
+import { useRecoilValue } from 'recoil';
 
 import {
   DISCONNECT_XERO_MUTATION,
   DisconnectXeroResult,
 } from '@/settings/integrations/graphql/mutations/disconnectXeroMutation';
+import { tokenPairState } from '@/auth/states/tokenPairState';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 
 export const useTriggerXeroOAuth = () => {
   const [disconnectXeroMutation] = useMutation<DisconnectXeroResult>(
     DISCONNECT_XERO_MUTATION,
   );
+  const tokenPair = useRecoilValue(tokenPairState);
 
   const triggerXeroOAuth = () => {
-    // Redirect to backend OAuth endpoint
-    // The backend will handle the OAuth flow and redirect back to /settings/integrations
-    window.location.href = `${REACT_APP_SERVER_BASE_URL}/api/auth/xero`;
+    // Pass token as query parameter since browser redirects can't include headers
+    const token = tokenPair?.accessOrWorkspaceAgnosticToken?.token;
+
+    if (!token) {
+      // eslint-disable-next-line no-console
+      console.error('No access token available for Xero OAuth');
+
+      return;
+    }
+
+    window.location.href = `${REACT_APP_SERVER_BASE_URL}/api/auth/xero?token=${encodeURIComponent(token)}`;
   };
 
   const disconnectXero = async () => {

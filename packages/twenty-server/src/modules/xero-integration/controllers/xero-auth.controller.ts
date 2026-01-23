@@ -8,9 +8,11 @@ import {
   Query,
   BadRequestException,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { WorkspaceAuthGuard } from 'src/engine/guards/workspace-auth.guard';
+import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
+import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
 import { XeroTokenService } from '../services/xero-token.service';
 import { XeroClientService } from '../services/xero-client.service';
 
@@ -22,7 +24,7 @@ import { XeroClientService } from '../services/xero-client.service';
  * 2. Handling callbacks from Xero (GET /xero/callback)
  * 3. Disconnecting integrations (GET /xero/disconnect)
  *
- * All endpoints require workspace authentication via WorkspaceAuthGuard.
+ * All endpoints require workspace authentication via JwtAuthGuard.
  */
 @Controller('api/auth/xero')
 export class XeroAuthController {
@@ -36,6 +38,7 @@ export class XeroAuthController {
   constructor(
     private readonly tokenService: XeroTokenService,
     private readonly clientService: XeroClientService,
+    private readonly accessTokenService: AccessTokenService,
   ) {
     // Load environment variables
     const clientId = process.env.XERO_CLIENT_ID;
@@ -83,22 +86,33 @@ export class XeroAuthController {
    * can grant permissions to the application. The workspace ID is passed via
    * the state parameter to maintain context during the OAuth flow.
    *
+   * Note: This endpoint accepts the JWT token as a query parameter because
+   * browser redirects cannot include Authorization headers.
+   *
    * @route GET /api/auth/xero
-   * @param req - Express request object (contains workspace from WorkspaceAuthGuard)
+   * @param token - JWT access token passed as query parameter
    * @param res - Express response object for redirecting
    */
   @Get()
-  @UseGuards(WorkspaceAuthGuard)
-  async initiateAuth(@Req() req: Request, @Res() res: Response): Promise<void> {
+  async initiateAuth(
+    @Query('token') token: string,
+    @Res() res: Response,
+  ): Promise<void> {
     this.validateConfigured();
     try {
-      const workspace = req['workspace'];
+      // Validate the token passed as query parameter
+      if (!token) {
+        throw new UnauthorizedException('Authentication token is required');
+      }
 
-      if (!workspace || !workspace.id) {
+      // Validate the token and extract workspace info
+      const tokenData = await this.accessTokenService.validateToken(token);
+
+      if (!tokenData.workspace || !tokenData.workspace.id) {
         throw new BadRequestException('Workspace context is required');
       }
 
-      const workspaceId = workspace.id;
+      const workspaceId = tokenData.workspace.id;
 
       this.logger.log(
         `Initiating Xero OAuth flow for workspace ${workspaceId}`,
@@ -114,6 +128,14 @@ export class XeroAuthController {
         `Failed to initiate Xero auth: ${error.message}`,
         error.stack,
       );
+
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+
       throw new InternalServerErrorException(
         'Failed to initiate Xero authorization',
       );
@@ -218,11 +240,11 @@ export class XeroAuthController {
    * API calls. The tokens remain in the database but are no longer used.
    *
    * @route GET /api/auth/xero/disconnect
-   * @param req - Express request object (contains workspace from WorkspaceAuthGuard)
+   * @param req - Express request object (contains workspace from JwtAuthGuard)
    * @param res - Express response object
    */
   @Get('disconnect')
-  @UseGuards(WorkspaceAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async disconnect(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.validateConfigured();
     try {

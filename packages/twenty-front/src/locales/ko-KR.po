@@ -2774,6 +2774,11 @@ msgstr "역할 업데이트 확인"
 msgid "Confirm upgrade"
 msgstr "업그레이드 확인"
 
+#. js-lingui-id: iSLIjg
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Connect"
+msgstr ""
+
 #. js-lingui-id: D8ATlr
 #: src/modules/settings/accounts/components/SettingsNewAccountSection.tsx
 msgid "Connect a new account to your workspace"
@@ -2783,6 +2788,11 @@ msgstr "새 계정을 워크스페이스에 연결"
 #: src/modules/settings/accounts/components/SettingsAccountsListEmptyStateCard.tsx
 msgid "Connect Account"
 msgstr "계정 연결"
+
+#. js-lingui-id: XGcibY
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+msgid "Connect external services to your workspace"
+msgstr ""
 
 #. js-lingui-id: Zgi9Fd
 #: src/modules/settings/accounts/components/SettingsAccountsListEmptyStateCard.tsx
@@ -2794,10 +2804,21 @@ msgstr "Google과 연결"
 msgid "Connect with Microsoft"
 msgstr "Microsoft와 연결"
 
+#. js-lingui-id: pItBV7
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Connect your Xero account for accounting integration"
+msgstr ""
+
 #. js-lingui-id: 9TzudL
 #: src/pages/settings/accounts/SettingsAccounts.tsx
 msgid "Connected accounts"
 msgstr "연결된 계정"
+
+#. js-lingui-id: bCW+p2
+#. placeholder {0}: connection?.tenantName ?? 'Xero'
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Connected to {0}"
+msgstr ""
 
 #. js-lingui-id: W4Kgwq
 #: src/modules/settings/accounts/components/SettingsAccountsRowDropdownMenu.tsx
@@ -4053,6 +4074,11 @@ msgstr "세부정보"
 #: src/modules/action-menu/actions/record-actions/constants/WorkflowActionsConfig.tsx
 msgid "Discard Draft"
 msgstr "초안 삭제"
+
+#. js-lingui-id: +K0AvT
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Disconnect"
+msgstr ""
 
 #. js-lingui-id: Xm/s+u
 #: src/modules/settings/accounts/components/SettingsAccountsCalendarChannelsGeneral.tsx
@@ -6457,6 +6483,13 @@ msgstr ""
 msgid "Instructions for AI"
 msgstr "AI 사용 지침"
 
+#. js-lingui-id: nbfdhU
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+#: src/modules/settings/hooks/useSettingsNavigationItems.tsx
+msgid "Integrations"
+msgstr ""
+
 #. js-lingui-id: RGm66q
 #: src/utils/title-utils.ts
 msgid "Integrations - Settings"
@@ -8354,6 +8387,11 @@ msgstr "기본 보기에서 사용 불가"
 #: src/modules/object-record/object-options-dropdown/components/ObjectOptionsDropdownCustomView.tsx
 msgid "Not available on Default View"
 msgstr "기본 보기에서 사용 불가"
+
+#. js-lingui-id: S33tz3
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Not connected"
+msgstr ""
 
 #. js-lingui-id: 4wUkDk
 #: src/modules/object-record/record-board/record-board-column/utils/getAggregateOperationShortLabel.ts
@@ -11608,6 +11646,11 @@ msgstr "셋째"
 msgid "Third"
 msgstr "셋째"
 
+#. js-lingui-id: KKPDhg
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
+msgid "Third-party integrations"
+msgstr ""
+
 #. js-lingui-id: h4vGCD
 #: src/modules/workflow/workflow-steps/workflow-actions/find-records-action/components/WorkflowEditActionFindRecords.tsx
 msgid "This action can return up to {maxRecordsFormatted} records."
@@ -12883,6 +12926,7 @@ msgstr "Workflows"
 #: src/pages/settings/roles/SettingsRoleAddObjectLevel.tsx
 #: src/pages/settings/members/SettingsWorkspaceMembers.tsx
 #: src/pages/settings/members/SettingsWorkspaceMember.tsx
+#: src/pages/settings/integrations/SettingsIntegrations.tsx
 #: src/pages/settings/emailing-domains/SettingsNewEmailingDomain.tsx
 #: src/pages/settings/emailing-domains/SettingsEmailingDomainDetail.tsx
 #: src/pages/settings/domains/SettingsDomains.tsx
@@ -13005,6 +13049,11 @@ msgstr "X 축"
 #: src/modules/command-menu/pages/page-layout/utils/__tests__/shouldHideChartSetting.test.ts
 msgid "X Axis Data"
 msgstr "X 축 데이터"
+
+#. js-lingui-id: YowYEl
+#: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
+msgid "Xero"
+msgstr ""
 
 #. js-lingui-id: fplGg6
 #: src/modules/command-menu/pages/page-layout/utils/getChartAxisNameDisplayOptions.ts
