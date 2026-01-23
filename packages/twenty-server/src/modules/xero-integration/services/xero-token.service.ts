@@ -81,7 +81,8 @@ export interface XeroTokens {
 export class XeroTokenService {
   private readonly logger = new Logger(XeroTokenService.name);
   private readonly algorithm = 'aes-256-gcm';
-  private readonly encryptionKey: Buffer;
+  private readonly encryptionKey: Buffer | null;
+  private readonly isConfigured: boolean;
 
   constructor(
     @InjectRepository(XeroConnectionEntity)
@@ -89,11 +90,36 @@ export class XeroTokenService {
   ) {
     const key = process.env.XERO_ENCRYPTION_KEY;
     if (!key || key.length !== 64) {
+      this.logger.warn(
+        'XERO_ENCRYPTION_KEY not configured or invalid. Xero token encryption will not function. ' +
+          'Set a 64-character hex string (32 bytes) to enable Xero integration.',
+      );
+      this.encryptionKey = null;
+      this.isConfigured = false;
+    } else {
+      this.encryptionKey = Buffer.from(key, 'hex');
+      this.isConfigured = true;
+    }
+  }
+
+  /**
+   * Check if the Xero integration is properly configured.
+   * @returns true if XERO_ENCRYPTION_KEY is set
+   */
+  isEnabled(): boolean {
+    return this.isConfigured;
+  }
+
+  /**
+   * Validate that the service is configured before operations
+   * @throws Error if encryption key is not configured
+   */
+  private validateConfigured(): void {
+    if (!this.isConfigured || !this.encryptionKey) {
       throw new Error(
-        'XERO_ENCRYPTION_KEY must be a 64-character hex string (32 bytes)',
+        'Xero integration is not configured. Set XERO_ENCRYPTION_KEY environment variable.',
       );
     }
-    this.encryptionKey = Buffer.from(key, 'hex');
   }
 
   /**
@@ -111,10 +137,11 @@ export class XeroTokenService {
    * @private
    */
   private encrypt(text: string): string {
+    this.validateConfigured();
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(
       this.algorithm,
-      this.encryptionKey,
+      this.encryptionKey!,
       iv,
     );
 
@@ -143,6 +170,7 @@ export class XeroTokenService {
    * @private
    */
   private decrypt(encryptedData: string): string {
+    this.validateConfigured();
     const [ivHex, authTagHex, encrypted] = encryptedData.split(':');
 
     const iv = Buffer.from(ivHex, 'hex');
@@ -150,7 +178,7 @@ export class XeroTokenService {
 
     const decipher = crypto.createDecipheriv(
       this.algorithm,
-      this.encryptionKey,
+      this.encryptionKey!,
       iv,
     );
     decipher.setAuthTag(authTag);

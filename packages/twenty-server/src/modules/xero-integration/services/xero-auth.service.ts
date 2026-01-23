@@ -105,18 +105,18 @@ export class XeroAuthService {
 
   constructor(
     private readonly httpService: HttpService,
-    @InjectRepository(XeroConnectionEntity, 'core')
+    @InjectRepository(XeroConnectionEntity)
     private readonly xeroConnectionRepository: Repository<XeroConnectionEntity>,
   ) {
-    // Load OAuth credentials from environment
-    this.clientId = process.env.AUTH_XERO_CLIENT_ID || '';
-    this.clientSecret = process.env.AUTH_XERO_CLIENT_SECRET || '';
-    this.callbackUrl = process.env.AUTH_XERO_CALLBACK_URL || '';
+    // Load OAuth credentials from environment (support both naming conventions)
+    this.clientId = process.env.XERO_CLIENT_ID || process.env.AUTH_XERO_CLIENT_ID || '';
+    this.clientSecret = process.env.XERO_CLIENT_SECRET || process.env.AUTH_XERO_CLIENT_SECRET || '';
+    this.callbackUrl = process.env.XERO_REDIRECT_URI || process.env.AUTH_XERO_CALLBACK_URL || '';
 
     if (!this.clientId || !this.clientSecret || !this.callbackUrl) {
       this.logger.error(
         'Xero OAuth credentials not configured. Required environment variables: ' +
-        'AUTH_XERO_CLIENT_ID, AUTH_XERO_CLIENT_SECRET, AUTH_XERO_CALLBACK_URL',
+        'XERO_CLIENT_ID, XERO_CLIENT_SECRET, XERO_REDIRECT_URI',
       );
     }
   }

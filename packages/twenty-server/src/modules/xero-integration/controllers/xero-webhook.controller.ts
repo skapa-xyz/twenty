@@ -37,13 +37,32 @@ interface XeroWebhookPayload {
 export class XeroWebhookController {
   private readonly logger = new Logger(XeroWebhookController.name);
   private readonly webhookKey: string;
+  private readonly isConfigured: boolean;
 
   constructor(private readonly webhookService: XeroWebhookService) {
     const key = process.env.XERO_WEBHOOK_KEY;
     if (!key) {
-      throw new Error('XERO_WEBHOOK_KEY environment variable is required');
+      this.logger.warn(
+        'XERO_WEBHOOK_KEY environment variable is not configured. Xero webhooks will not function.',
+      );
+      this.webhookKey = '';
+      this.isConfigured = false;
+    } else {
+      this.webhookKey = key;
+      this.isConfigured = true;
     }
-    this.webhookKey = key;
+  }
+
+  /**
+   * Validates that Xero webhooks are properly configured before processing.
+   * @throws BadRequestException if not configured
+   */
+  private validateConfigured(): void {
+    if (!this.isConfigured) {
+      throw new BadRequestException(
+        'Xero webhooks are not configured. Please set XERO_WEBHOOK_KEY environment variable.',
+      );
+    }
   }
 
   @Post()
@@ -53,6 +72,7 @@ export class XeroWebhookController {
     @Headers('x-xero-signature') signature: string,
     @Body() payload: XeroWebhookPayload,
   ): Promise<{ status: string }> {
+    this.validateConfigured();
     // Verify signature
     const rawBody = req.rawBody;
     if (!rawBody) {

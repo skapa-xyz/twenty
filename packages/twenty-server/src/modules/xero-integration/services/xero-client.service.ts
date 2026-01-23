@@ -45,7 +45,7 @@ export class XeroClientService {
 
   constructor(
     private readonly httpService: HttpService,
-    @InjectRepository(XeroConnectionEntity, 'core')
+    @InjectRepository(XeroConnectionEntity)
     private readonly xeroConnectionRepository: Repository<XeroConnectionEntity>,
   ) {
     // Load OAuth credentials from environment

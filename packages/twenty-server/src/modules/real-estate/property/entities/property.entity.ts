@@ -1,7 +1,7 @@
 import { Field, Float, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 import { IDField } from '@ptc-org/nestjs-query-graphql';
-import { GraphQLJSONObject } from 'graphql-scalars';
+import GraphQLJSON from 'graphql-type-json';
 import {
   Column,
   CreateDateColumn,
@@ -108,7 +108,7 @@ export class PropertyEntity extends WorkspaceRelatedEntity {
   }
 
   // Property attributes
-  @Field(() => GraphQLJSONObject)
+  @Field(() => GraphQLJSON)
   @Column({ type: 'jsonb', default: {} })
   attributes: PropertyAttributes;
 

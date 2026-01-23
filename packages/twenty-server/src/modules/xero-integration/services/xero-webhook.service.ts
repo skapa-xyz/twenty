@@ -40,7 +40,7 @@ export class XeroWebhookService {
   private readonly logger = new Logger(XeroWebhookService.name);
 
   constructor(
-    @InjectRepository(XeroConnectionEntity, 'core')
+    @InjectRepository(XeroConnectionEntity)
     private readonly xeroConnectionRepository: Repository<XeroConnectionEntity>,
     private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
     private readonly xeroClientService: XeroClientService,

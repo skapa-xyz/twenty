@@ -31,29 +31,49 @@ export class XeroAuthController {
   private readonly clientSecret: string;
   private readonly redirectUri: string;
   private readonly scopes: string[];
+  private readonly isConfigured: boolean;
 
   constructor(
     private readonly tokenService: XeroTokenService,
     private readonly clientService: XeroClientService,
   ) {
-    // Load and validate required environment variables
+    // Load environment variables
     const clientId = process.env.XERO_CLIENT_ID;
     const clientSecret = process.env.XERO_CLIENT_SECRET;
     const redirectUri = process.env.XERO_REDIRECT_URI;
     const scopes = process.env.XERO_SCOPES;
 
     if (!clientId || !clientSecret || !redirectUri) {
-      throw new Error(
-        'XERO_CLIENT_ID, XERO_CLIENT_SECRET, and XERO_REDIRECT_URI environment variables are required',
+      this.logger.warn(
+        'XERO_CLIENT_ID, XERO_CLIENT_SECRET, and XERO_REDIRECT_URI environment variables are not configured. ' +
+          'Xero OAuth endpoints will not function.',
       );
+      this.clientId = '';
+      this.clientSecret = '';
+      this.redirectUri = '';
+      this.isConfigured = false;
+    } else {
+      this.clientId = clientId;
+      this.clientSecret = clientSecret;
+      this.redirectUri = redirectUri;
+      this.isConfigured = true;
     }
 
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.redirectUri = redirectUri;
     this.scopes = scopes
       ? scopes.split(',').map((s) => s.trim())
       : ['accounting.transactions', 'accounting.contacts', 'offline_access'];
+  }
+
+  /**
+   * Validates that Xero integration is properly configured before operations.
+   * @throws BadRequestException if not configured
+   */
+  private validateConfigured(): void {
+    if (!this.isConfigured) {
+      throw new BadRequestException(
+        'Xero integration is not configured. Please set XERO_CLIENT_ID, XERO_CLIENT_SECRET, and XERO_REDIRECT_URI environment variables.',
+      );
+    }
   }
 
   /**
@@ -70,6 +90,7 @@ export class XeroAuthController {
   @Get()
   @UseGuards(WorkspaceAuthGuard)
   async initiateAuth(@Req() req: Request, @Res() res: Response): Promise<void> {
+    this.validateConfigured();
     try {
       const workspace = req['workspace'];
 
@@ -120,6 +141,7 @@ export class XeroAuthController {
     @Query('error') error: string,
     @Res() res: Response,
   ): Promise<void> {
+    this.validateConfigured();
     try {
       // Handle authorization denial
       if (error) {
@@ -202,6 +224,7 @@ export class XeroAuthController {
   @Get('disconnect')
   @UseGuards(WorkspaceAuthGuard)
   async disconnect(@Req() req: Request, @Res() res: Response): Promise<void> {
+    this.validateConfigured();
     try {
       const workspace = req['workspace'];
 

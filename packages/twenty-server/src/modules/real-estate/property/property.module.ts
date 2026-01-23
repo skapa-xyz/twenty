@@ -6,7 +6,7 @@ import { PropertySpatialResolver } from './resolvers/property-spatial.resolver';
 import { PropertySpatialService } from './services/property-spatial.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PropertyEntity], 'core')],
+  imports: [TypeOrmModule.forFeature([PropertyEntity])],
   providers: [PropertySpatialService, PropertySpatialResolver],
   exports: [PropertySpatialService, TypeOrmModule],
 })

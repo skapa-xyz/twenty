@@ -51,7 +51,7 @@ import { XeroCreateInvoiceJob } from './jobs/xero-create-invoice.job';
 @Module({
   imports: [
     // Register the XeroConnectionEntity for database operations
-    TypeOrmModule.forFeature([XeroConnectionEntity], 'core'),
+    TypeOrmModule.forFeature([XeroConnectionEntity]),
     // HTTP module for making API requests to Xero
     HttpModule.register({
       timeout: 10000, // 10 second timeout for Xero API calls

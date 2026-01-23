@@ -10,7 +10,7 @@ import {
   Unique,
 } from 'typeorm';
 import { Field, ObjectType, ID, Int } from '@nestjs/graphql';
-import { GraphQLJSONObject } from 'graphql-scalars';
+import GraphQLJSON from 'graphql-type-json';
 import { PropertyEntity } from '../../property/entities/property.entity';
 import { BriefEntity } from '../../brief/entities/brief.entity';
 
@@ -95,7 +95,7 @@ export class PropertyMatchEntity {
    * Detailed breakdown of how the match score was calculated
    * Stored as JSONB for flexibility and query capabilities
    */
-  @Field(() => GraphQLJSONObject)
+  @Field(() => GraphQLJSON)
   @Column({ type: 'jsonb', default: {} })
   scoreBreakdown: ScoreBreakdown;
 
@@ -114,7 +114,7 @@ export class PropertyMatchEntity {
    * Notes added by agents during the matching process
    * Used for context and follow-up actions
    */
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   agentNotes: string | null;
 
@@ -122,7 +122,7 @@ export class PropertyMatchEntity {
    * Timestamp when the match was first viewed
    * Used for engagement tracking and analytics
    */
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   @Column({ type: 'timestamptz', nullable: true })
   viewedAt: Date | null;
 

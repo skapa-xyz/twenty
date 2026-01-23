@@ -12,10 +12,7 @@ import { MatchingEngineService } from './services/matching-engine.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature(
-      [BriefEntity, PropertyMatchEntity, PropertyEntity],
-      'core',
-    ),
+    TypeOrmModule.forFeature([BriefEntity, PropertyMatchEntity, PropertyEntity]),
   ],
   providers: [
     MatchingEngineService,

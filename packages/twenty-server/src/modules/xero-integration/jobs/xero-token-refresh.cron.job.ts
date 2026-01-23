@@ -60,7 +60,7 @@ export class XeroTokenRefreshCronJob {
   private readonly clientSecret: string;
 
   constructor(
-    @InjectRepository(XeroConnectionEntity, 'core')
+    @InjectRepository(XeroConnectionEntity)
     private readonly xeroConnectionRepository: Repository<XeroConnectionEntity>,
     private readonly xeroTokenService: XeroTokenService,
     private readonly httpService: HttpService,

@@ -11,7 +11,6 @@ import {
 } from 'typeorm';
 import { Point } from 'geojson';
 import { Field, ObjectType, ID, Int, Float } from '@nestjs/graphql';
-import { GraphQLJSONObject } from 'graphql-scalars';
 
 export enum BriefPriority {
   HIGH = 'high',
@@ -96,7 +95,7 @@ export class BriefEntity {
   @Column({ type: 'jsonb', default: [] })
   dealBreakers: string[];
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 

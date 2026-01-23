@@ -20,16 +20,16 @@ describe('XeroAuthService', () => {
   let xeroConnectionRepository: Repository<XeroConnectionEntity>;
 
   const mockEnv = {
-    AUTH_XERO_CLIENT_ID: 'test-client-id',
-    AUTH_XERO_CLIENT_SECRET: 'test-client-secret',
-    AUTH_XERO_CALLBACK_URL: 'https://test.com/callback',
+    XERO_CLIENT_ID: 'test-client-id',
+    XERO_CLIENT_SECRET: 'test-client-secret',
+    XERO_REDIRECT_URI: 'https://test.com/callback',
   };
 
   beforeEach(async () => {
-    // Set environment variables
-    process.env.AUTH_XERO_CLIENT_ID = mockEnv.AUTH_XERO_CLIENT_ID;
-    process.env.AUTH_XERO_CLIENT_SECRET = mockEnv.AUTH_XERO_CLIENT_SECRET;
-    process.env.AUTH_XERO_CALLBACK_URL = mockEnv.AUTH_XERO_CALLBACK_URL;
+    // Set environment variables (using standardized XERO_* names)
+    process.env.XERO_CLIENT_ID = mockEnv.XERO_CLIENT_ID;
+    process.env.XERO_CLIENT_SECRET = mockEnv.XERO_CLIENT_SECRET;
+    process.env.XERO_REDIRECT_URI = mockEnv.XERO_REDIRECT_URI;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -110,8 +110,8 @@ describe('XeroAuthService', () => {
       // Validate query parameters
       const params = url.searchParams;
       expect(params.get('response_type')).toBe('code');
-      expect(params.get('client_id')).toBe(mockEnv.AUTH_XERO_CLIENT_ID);
-      expect(params.get('redirect_uri')).toBe(mockEnv.AUTH_XERO_CALLBACK_URL);
+      expect(params.get('client_id')).toBe(mockEnv.XERO_CLIENT_ID);
+      expect(params.get('redirect_uri')).toBe(mockEnv.XERO_REDIRECT_URI);
       expect(params.get('code_challenge_method')).toBe('S256');
       expect(params.get('code_challenge')).toBeTruthy();
       expect(params.get('state')).toBeTruthy();
@@ -151,7 +151,7 @@ describe('XeroAuthService', () => {
 
     it('should throw error if credentials are missing', async () => {
       // Clear environment variables
-      delete process.env.AUTH_XERO_CLIENT_ID;
+      delete process.env.XERO_CLIENT_ID;
 
       // Create new service instance without credentials
       const moduleWithoutCreds = await Test.createTestingModule({
@@ -176,7 +176,7 @@ describe('XeroAuthService', () => {
       ).rejects.toThrow(CustomError);
 
       // Restore env vars
-      process.env.AUTH_XERO_CLIENT_ID = mockEnv.AUTH_XERO_CLIENT_ID;
+      process.env.XERO_CLIENT_ID = mockEnv.XERO_CLIENT_ID;
     });
   });
 
