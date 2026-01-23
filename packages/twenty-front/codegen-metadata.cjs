@@ -30,6 +30,7 @@ module.exports = {
     '!./src/**/*.test.{ts,tsx}',
     '!./src/**/*.stories.{ts,tsx}',
     '!./src/**/__mocks__/*.ts',
+    '!./src/modules/settings/integrations/**/*.{ts,tsx}', // Xero integration uses main schema, not metadata
   ],
   overwrite: true,
   generates: {
