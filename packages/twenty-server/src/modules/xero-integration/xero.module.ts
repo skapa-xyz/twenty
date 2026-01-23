@@ -13,6 +13,7 @@ import { XeroWebhookService } from './services/xero-webhook.service';
 import { OpportunityStageChangedListener } from './listeners/opportunity-stage-changed.listener';
 import { XeroTokenRefreshCronJob } from './jobs/xero-token-refresh.cron.job';
 import { XeroCreateInvoiceJob } from './jobs/xero-create-invoice.job';
+import { XeroConnectionResolver } from './resolvers/xero-connection.resolver';
 
 /**
  * Xero Integration Module
@@ -71,6 +72,8 @@ import { XeroCreateInvoiceJob } from './jobs/xero-create-invoice.job';
     XeroContactService,
     XeroInvoiceService,
     XeroWebhookService,
+    // GraphQL resolvers
+    XeroConnectionResolver,
     // Event listeners
     OpportunityStageChangedListener,
     // Job processors

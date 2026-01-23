@@ -308,6 +308,14 @@ const SettingsEmailingDomainDetail = lazy(() =>
   ),
 );
 
+const SettingsIntegrations = lazy(() =>
+  import('~/pages/settings/integrations/SettingsIntegrations').then(
+    (module) => ({
+      default: module.SettingsIntegrations,
+    }),
+  ),
+);
+
 const SettingsAdmin = lazy(() =>
   import('~/pages/settings/admin-panel/SettingsAdmin').then((module) => ({
     default: module.SettingsAdmin,
@@ -563,6 +571,10 @@ export const SettingsRoutes = ({ isAdminPageEnabled }: SettingsRoutesProps) => (
         <Route
           path={SettingsPath.WebhookDetail}
           element={<SettingsDevelopersWebhookDetail />}
+        />
+        <Route
+          path={SettingsPath.Integrations}
+          element={<SettingsIntegrations />}
         />
       </Route>
 

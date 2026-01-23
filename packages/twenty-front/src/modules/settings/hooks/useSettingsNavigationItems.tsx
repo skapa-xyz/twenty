@@ -14,7 +14,7 @@ import { isNonEmptyString } from '@sniptt/guards';
 import { useRecoilValue } from 'recoil';
 import {
   IconApi,
-  // IconApps, // TODO: Re-enable when integrations page is ready
+  IconApps,
   IconAt,
   IconCalendarEvent,
   IconColorSwatch,
@@ -159,13 +159,12 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
           Icon: IconApi,
           isHidden: !permissionMap[PermissionFlagType.API_KEYS_AND_WEBHOOKS],
         },
-        // TODO: Re-enable when integrations page is ready
-        // {
-        //   label: t`Integrations`,
-        //   path: SettingsPath.Integrations,
-        //   Icon: IconApps,
-        //   isHidden: !permissionMap[PermissionFlagType.API_KEYS_AND_WEBHOOKS],
-        // },
+        {
+          label: t`Integrations`,
+          path: SettingsPath.Integrations,
+          Icon: IconApps,
+          isHidden: !permissionMap[PermissionFlagType.API_KEYS_AND_WEBHOOKS],
+        },
         {
           label: t`Applications`,
           path: SettingsPath.Applications,
