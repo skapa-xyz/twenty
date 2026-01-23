@@ -1,14 +1,18 @@
 import { useQuery } from '@apollo/client';
 
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import {
   XERO_CONNECTION_QUERY,
-  XeroConnectionData,
+  type XeroConnectionData,
 } from '@/settings/integrations/graphql/queries/xeroConnectionQuery';
 
 export const useXeroConnection = () => {
-  const { data, loading, refetch } = useQuery<XeroConnectionData>(
+  const apolloCoreClient = useApolloCoreClient();
+
+  const { data, loading, error, refetch } = useQuery<XeroConnectionData>(
     XERO_CONNECTION_QUERY,
     {
+      client: apolloCoreClient,
       fetchPolicy: 'network-only',
     },
   );
@@ -16,6 +20,7 @@ export const useXeroConnection = () => {
   return {
     connection: data?.xeroConnection ?? null,
     loading,
+    error,
     refetch,
   };
 };

@@ -3,14 +3,17 @@ import { useRecoilValue } from 'recoil';
 
 import {
   DISCONNECT_XERO_MUTATION,
-  DisconnectXeroResult,
+  type DisconnectXeroResult,
 } from '@/settings/integrations/graphql/mutations/disconnectXeroMutation';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { tokenPairState } from '@/auth/states/tokenPairState';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 
 export const useTriggerXeroOAuth = () => {
+  const apolloCoreClient = useApolloCoreClient();
   const [disconnectXeroMutation] = useMutation<DisconnectXeroResult>(
     DISCONNECT_XERO_MUTATION,
+    { client: apolloCoreClient },
   );
   const tokenPair = useRecoilValue(tokenPairState);
 
