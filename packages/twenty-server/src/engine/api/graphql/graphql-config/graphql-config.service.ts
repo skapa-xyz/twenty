@@ -31,6 +31,7 @@ import {
   Support,
 } from 'src/engine/core-modules/client-config/client-config.entity';
 import { CoreEngineModule } from 'src/engine/core-modules/core-engine.module';
+import { ModulesModule } from 'src/modules/modules.module';
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
 import { useSentryTracing } from 'src/engine/core-modules/exception-handler/hooks/use-sentry-tracing';
 import { useDisableIntrospectionAndSuggestionsForUnauthenticatedUsers } from 'src/engine/core-modules/graphql/hooks/use-disable-introspection-and-suggestions-for-unauthenticated-users.hook';
@@ -92,7 +93,7 @@ export class GraphQLConfigService
 
     const config: YogaDriverConfig = {
       autoSchemaFile: true,
-      include: [CoreEngineModule],
+      include: [CoreEngineModule, ModulesModule],
       buildSchemaOptions: {
         orphanedTypes: [
           ApiConfig,
