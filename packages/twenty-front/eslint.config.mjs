@@ -22,6 +22,10 @@ const config = [
       '**/*config.js',
       '**/__mocks__/**',
       'src/testing/mock-data/**',
+      'dist/**',
+      '.cache/**',
+      '.nx/**',
+      '.swc/**',
     ],
   },
 

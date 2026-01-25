@@ -1,5 +1,5 @@
 import {
-  PackageJson,
+  type PackageJson,
   type Application,
   type ObjectManifest,
   type ServerlessFunctionManifest,
