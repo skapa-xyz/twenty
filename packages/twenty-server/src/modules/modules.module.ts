@@ -5,7 +5,6 @@ import { ConnectedAccountModule } from 'src/modules/connected-account/connected-
 import { FavoriteFolderModule } from 'src/modules/favorite-folder/favorite-folder.module';
 import { FavoriteModule } from 'src/modules/favorite/favorite.module';
 import { MessagingModule } from 'src/modules/messaging/messaging.module';
-import { RealEstateModule } from 'src/modules/real-estate/real-estate.module';
 import { WorkflowModule } from 'src/modules/workflow/workflow.module';
 import { XeroModule } from 'src/modules/xero-integration/xero.module';
 
@@ -17,7 +16,6 @@ import { XeroModule } from 'src/modules/xero-integration/xero.module';
     WorkflowModule,
     FavoriteFolderModule,
     FavoriteModule,
-    RealEstateModule,
     XeroModule,
   ],
   providers: [],
