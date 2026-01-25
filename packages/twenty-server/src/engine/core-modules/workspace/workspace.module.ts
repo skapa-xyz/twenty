@@ -37,6 +37,7 @@ import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
 import { ViewModule } from 'src/engine/metadata-modules/view/view.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { WorkspaceDataSourceModule } from 'src/engine/workspace-datasource/workspace-datasource.module';
+import { BuyersAgentObjectsModule } from 'src/engine/workspace-manager/buyers-agent-objects/buyers-agent-objects.module';
 import { WorkspaceManagerModule } from 'src/engine/workspace-manager/workspace-manager.module';
 
 @Module({
@@ -75,6 +76,7 @@ import { WorkspaceManagerModule } from 'src/engine/workspace-manager/workspace-m
         ViewModule,
         WorkspaceManyOrAllFlatEntityMapsCacheModule,
         ApplicationModule,
+        BuyersAgentObjectsModule,
       ],
       services: [WorkspaceService],
       resolvers: workspaceAutoResolverOpts,

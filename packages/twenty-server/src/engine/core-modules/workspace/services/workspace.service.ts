@@ -54,6 +54,7 @@ import { prefillDashboards } from 'src/engine/workspace-manager/standard-objects
 import { prefillOpportunities } from 'src/engine/workspace-manager/standard-objects-prefill-data/prefill-opportunities';
 import { prefillPeople } from 'src/engine/workspace-manager/standard-objects-prefill-data/prefill-people';
 import { prefillWorkflows } from 'src/engine/workspace-manager/standard-objects-prefill-data/prefill-workflows';
+import { BuyersAgentObjectsService } from 'src/engine/workspace-manager/buyers-agent-objects/buyers-agent-objects.service';
 import { WorkspaceManagerService } from 'src/engine/workspace-manager/workspace-manager.service';
 import { DEFAULT_FEATURE_FLAGS } from 'src/engine/workspace-manager/workspace-migration/constant/default-feature-flags';
 import { extractVersionMajorMinorPatch } from 'src/utils/version/extract-version-major-minor-patch';
@@ -110,6 +111,7 @@ export class WorkspaceService extends TypeOrmQueryService<WorkspaceEntity> {
     private readonly messageQueueService: MessageQueueService,
     @InjectDataSource()
     private readonly coreDataSource: DataSource,
+    private readonly buyersAgentObjectsService: BuyersAgentObjectsService,
   ) {
     super(workspaceRepository);
   }
@@ -264,6 +266,10 @@ export class WorkspaceService extends TypeOrmQueryService<WorkspaceEntity> {
       workspace,
       userId: user.id,
     });
+
+    // Create Buyers Agent custom objects (Property, Buyer, PropertyShortlist)
+    // These are available in ALL workspaces for the Tenebrai CRM workflow
+    await this.buyersAgentObjectsService.ensureObjectsExist(workspace.id);
 
     await this.userWorkspaceService.createWorkspaceMember(workspace.id, user);
 
