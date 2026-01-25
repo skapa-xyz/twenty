@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { FieldMetadataType, RelationType } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
+import { DataSourceService } from 'src/engine/metadata-modules/data-source/data-source.service';
 import { FieldMetadataService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata.service';
 import { WorkspaceManyOrAllFlatEntityMapsCacheService } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service';
 import { buildObjectIdByNameMaps } from 'src/engine/metadata-modules/flat-object-metadata/utils/build-object-id-by-name-maps.util';
@@ -44,6 +45,7 @@ export class BuyersAgentObjectsService {
     private readonly objectMetadataService: ObjectMetadataService,
     private readonly fieldMetadataService: FieldMetadataService,
     private readonly flatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
+    private readonly dataSourceService: DataSourceService,
   ) {}
 
   /**
@@ -99,23 +101,33 @@ export class BuyersAgentObjectsService {
       `Ensuring Buyers Agent objects exist for workspace ${workspaceId}`,
     );
 
+    // Get the data source for this workspace
+    const dataSource =
+      await this.dataSourceService.getLastDataSourceMetadataFromWorkspaceIdOrFail(
+        workspaceId,
+      );
+
     // Get current object metadata maps
-    const { flatObjectMetadataMaps, flatFieldMetadataMaps } =
+    const { flatObjectMetadataMaps } =
       await this.flatEntityMapsCacheService.getOrRecomputeManyOrAllFlatEntityMaps(
         {
           workspaceId,
-          flatMapsKeys: ['flatObjectMetadataMaps', 'flatFieldMetadataMaps'],
+          flatMapsKeys: ['flatObjectMetadataMaps'],
         },
       );
 
-    const { idByNameSingular } = buildObjectIdByNameMaps(flatObjectMetadataMaps);
+    const { idByNameSingular } = buildObjectIdByNameMaps(
+      flatObjectMetadataMaps,
+    );
 
-    // Create objects and their fields
-    for (const { seed, fields } of this.objects) {
+    // Create objects (fields are created in a separate pass after cache refresh)
+    for (const { seed } of this.objects) {
       const existingObjectId = idByNameSingular[seed.nameSingular];
 
       if (isDefined(existingObjectId)) {
-        this.logger.log(`Object "${seed.nameSingular}" already exists, skipping`);
+        this.logger.log(
+          `Object "${seed.nameSingular}" already exists, skipping`,
+        );
         continue;
       }
 
@@ -130,6 +142,7 @@ export class BuyersAgentObjectsService {
             nameSingular: seed.nameSingular,
             icon: seed.icon,
             description: seed.description ?? `A ${seed.labelSingular}`,
+            dataSourceId: dataSource.id,
           },
           workspaceId,
         });
@@ -197,17 +210,23 @@ export class BuyersAgentObjectsService {
     objectMetadataId: string,
     fieldSeed: FieldMetadataSeed,
     flatFieldMetadataMaps: {
-      byId: Record<string, { name: string; objectMetadataId: string }>;
+      byId: Record<
+        string,
+        { name: string; objectMetadataId: string } | undefined
+      >;
     },
   ): Promise<void> {
     // Check if field already exists on this object
-    const existingField = Object.values(flatFieldMetadataMaps.byId).find(
-      (f) =>
-        f.objectMetadataId === objectMetadataId && f.name === fieldSeed.name,
-    );
+    const existingField = Object.values(flatFieldMetadataMaps.byId)
+      .filter(isDefined)
+      .find(
+        (f) =>
+          f.objectMetadataId === objectMetadataId && f.name === fieldSeed.name,
+      );
 
     if (isDefined(existingField)) {
       this.logger.debug(`Field "${fieldSeed.name}" already exists, skipping`);
+
       return;
     }
 
@@ -250,7 +269,9 @@ export class BuyersAgentObjectsService {
         },
       );
 
-    const { idByNameSingular } = buildObjectIdByNameMaps(flatObjectMetadataMaps);
+    const { idByNameSingular } = buildObjectIdByNameMaps(
+      flatObjectMetadataMaps,
+    );
 
     for (const junctionField of this.junctionFields) {
       const sourceObjectId = idByNameSingular[junctionField.sourceObjectName];
@@ -264,10 +285,13 @@ export class BuyersAgentObjectsService {
       }
 
       // Check if relation already exists
-      const existingField = Object.values(flatFieldMetadataMaps.byId).find(
-        (f) =>
-          f.objectMetadataId === sourceObjectId && f.name === junctionField.name,
-      );
+      const existingField = Object.values(flatFieldMetadataMaps.byId)
+        .filter(isDefined)
+        .find(
+          (f) =>
+            f.objectMetadataId === sourceObjectId &&
+            f.name === junctionField.name,
+        );
 
       if (isDefined(existingField)) {
         this.logger.debug(

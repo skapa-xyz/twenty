@@ -165,7 +165,9 @@ export class AccessTokenService {
 
   async validateTokenByRequest(request: Request): Promise<AuthContext> {
     // Try to get token from query string first
-    let token = request.query.token as string | undefined;
+    let token: string | null | undefined = request.query.token as
+      | string
+      | undefined;
 
     // If not in query, fall back to header
     if (!token) {
