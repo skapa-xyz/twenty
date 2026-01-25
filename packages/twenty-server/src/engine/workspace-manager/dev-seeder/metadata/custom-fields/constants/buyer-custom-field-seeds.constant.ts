@@ -121,6 +121,18 @@ export const BUYER_CUSTOM_FIELD_SEEDS: FieldMetadataSeed[] = [
     icon: 'IconScale',
   },
   {
+    type: FieldMetadataType.TEXT,
+    label: 'Mortgage Broker Name',
+    name: 'mortgageBrokerName',
+    icon: 'IconCash',
+  },
+  {
+    type: FieldMetadataType.TEXT,
+    label: 'Mortgage Broker Contact',
+    name: 'mortgageBrokerContact',
+    icon: 'IconCash',
+  },
+  {
     type: FieldMetadataType.RICH_TEXT,
     label: 'Investment Goals',
     name: 'investmentGoals',
