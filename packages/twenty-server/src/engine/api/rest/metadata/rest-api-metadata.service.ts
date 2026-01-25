@@ -11,7 +11,12 @@ import { type RequestContext } from 'src/engine/api/rest/types/RequestContext';
 import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
 import { DomainServerConfigService } from 'src/engine/core-modules/domain/domain-server-config/services/domain-server-config.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { getServerUrl } from 'src/utils/get-server-url';
+
+type RequestWithWorkspace = Request & {
+  workspace?: WorkspaceEntity;
+};
 
 @Injectable()
 export class RestApiMetadataService {
@@ -77,12 +82,12 @@ export class RestApiMetadataService {
     );
   }
 
-  private getRequestContext(request: Request): RequestContext {
+  private getRequestContext(request: RequestWithWorkspace): RequestContext {
     let baseUrl: string;
 
     // When multiworkspace is enabled, we need to construct the URL with the workspace subdomain
     if (this.twentyConfigService.get('IS_MULTIWORKSPACE_ENABLED')) {
-      const workspace = (request as any).workspace;
+      const workspace = request.workspace;
 
       if (workspace?.subdomain) {
         // Get the base domain without subdomain

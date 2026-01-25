@@ -69,6 +69,7 @@ export class SeedBuyersAgentObjectsCommand extends CommandRunner {
 
         if (!workspace) {
           this.logger.error(`Workspace not found: ${workspaceId}`);
+
           return;
         }
 

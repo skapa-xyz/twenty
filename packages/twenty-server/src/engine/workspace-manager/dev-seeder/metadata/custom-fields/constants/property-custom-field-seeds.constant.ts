@@ -105,7 +105,12 @@ export const PROPERTY_CUSTOM_FIELD_SEEDS: FieldMetadataSeed[] = [
     options: [
       { label: 'On Market', value: 'ON_MARKET', position: 0, color: 'green' },
       { label: 'Off Market', value: 'OFF_MARKET', position: 1, color: 'blue' },
-      { label: 'Pre-Market', value: 'PRE_MARKET', position: 2, color: 'purple' },
+      {
+        label: 'Pre-Market',
+        value: 'PRE_MARKET',
+        position: 2,
+        color: 'purple',
+      },
       {
         label: 'Under Contract',
         value: 'UNDER_CONTRACT',

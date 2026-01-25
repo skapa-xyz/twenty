@@ -62,6 +62,7 @@ export const SettingsIntegrationsXeroCard = () => {
   const { triggerXeroOAuth, disconnectXero } = useTriggerXeroOAuth();
 
   const isConnected = connection?.isConnected ?? false;
+  const tenantName = connection?.tenantName ?? 'Xero';
 
   const handleDisconnect = async () => {
     const success = await disconnectXero();
@@ -88,7 +89,7 @@ export const SettingsIntegrationsXeroCard = () => {
             {isConnected ? (
               <>
                 <IconCheck size={theme.icon.size.sm} />
-                {t`Connected to ${connection?.tenantName ?? 'Xero'}`}
+                {t`Connected to ${tenantName}`}
               </>
             ) : (
               <>

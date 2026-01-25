@@ -4,11 +4,10 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
-
 import {
   XeroCreateInvoiceJob,
   XeroInvoiceJobData,
-} from '../jobs/xero-create-invoice.job';
+} from 'src/modules/xero-integration/jobs/xero-create-invoice.job';
 
 export interface OpportunityStageChangedEvent {
   workspaceId: string;
