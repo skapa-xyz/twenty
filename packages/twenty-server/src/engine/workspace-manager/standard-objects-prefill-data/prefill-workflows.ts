@@ -11,6 +11,11 @@ import { generateObjectRecordFields } from 'src/modules/workflow/workflow-builde
 const QUICK_LEAD_WORKFLOW_ID = '8b213cac-a68b-4ffe-817a-3ec994e9932d';
 const QUICK_LEAD_WORKFLOW_VERSION_ID = 'ac67974f-c524-4288-9d88-af8515400b68';
 
+// Buyers Agent Workflow - triggers Xero invoices on opportunity stage changes
+const BUYERS_AGENT_INVOICE_WORKFLOW_ID = 'ba-invoice-wf-001-4a2b-9c3d-5e6f7a8b9c0d';
+const BUYERS_AGENT_INVOICE_WORKFLOW_VERSION_ID =
+  'ba-invoice-wfv-01-4a2b-9c3d-5e6f7a8b9c0e';
+
 export const prefillWorkflows = async (
   entityManager: EntityManager,
   schemaName: string,
@@ -291,6 +296,194 @@ export const prefillWorkflows = async (
         status: 'ACTIVE',
         position: 1,
         workflowId: QUICK_LEAD_WORKFLOW_ID,
+      },
+    ])
+    .returning('*')
+    .execute();
+
+  // ============================================
+  // Buyers Agent Invoice Workflow
+  // Triggers Xero invoice creation when Opportunity stage changes
+  // to 'engagement' (engagement fee) or 'exchanged' (success fee)
+  // ============================================
+
+  const opportunityObjectMetadataId = objectIdByNameSingular['opportunity'];
+
+  if (!isDefined(opportunityObjectMetadataId)) {
+    // Opportunity object not found, skip Buyers Agent workflow
+    return;
+  }
+
+  const opportunityObjectMetadata =
+    flatObjectMetadataMaps.byId[opportunityObjectMetadataId];
+
+  if (!isDefined(opportunityObjectMetadata)) {
+    return;
+  }
+
+  // Create the Buyers Agent Invoice workflow
+  await entityManager
+    .createQueryBuilder()
+    .insert()
+    .into(`${schemaName}.workflow`, [
+      'id',
+      'name',
+      'lastPublishedVersionId',
+      'statuses',
+      'position',
+      'createdBySource',
+      'createdByWorkspaceMemberId',
+      'createdByName',
+      'createdByContext',
+      'updatedBySource',
+      'updatedByWorkspaceMemberId',
+      'updatedByName',
+    ])
+    .orIgnore()
+    .values([
+      {
+        id: BUYERS_AGENT_INVOICE_WORKFLOW_ID,
+        name: 'Buyers Agent - Create Xero Invoice',
+        lastPublishedVersionId: BUYERS_AGENT_INVOICE_WORKFLOW_VERSION_ID,
+        statuses: ['ACTIVE'],
+        position: 2,
+        createdBySource: FieldActorSource.SYSTEM,
+        createdByWorkspaceMemberId: null,
+        createdByName: 'System',
+        createdByContext: {},
+        updatedBySource: FieldActorSource.SYSTEM,
+        updatedByWorkspaceMemberId: null,
+        updatedByName: 'System',
+      },
+    ])
+    .returning('*')
+    .execute();
+
+  // Create the workflow version with trigger and steps
+  await entityManager
+    .createQueryBuilder()
+    .insert()
+    .into(`${schemaName}.workflowVersion`, [
+      'id',
+      'name',
+      'trigger',
+      'steps',
+      'status',
+      'position',
+      'workflowId',
+    ])
+    .orIgnore()
+    .values([
+      {
+        id: BUYERS_AGENT_INVOICE_WORKFLOW_VERSION_ID,
+        name: 'v1',
+        trigger: JSON.stringify({
+          name: 'Opportunity Stage Changed',
+          type: 'DATABASE_EVENT',
+          settings: {
+            eventName: 'opportunity.updated',
+            outputSchema: {
+              id: {
+                type: 'TEXT',
+                label: 'Opportunity ID',
+                value: 'opportunity-uuid',
+                isLeaf: true,
+              },
+              stage: {
+                type: 'TEXT',
+                label: 'Stage',
+                value: 'engagement',
+                isLeaf: true,
+              },
+              properties: {
+                label: 'Properties',
+                isLeaf: false,
+                value: {
+                  before: {
+                    label: 'Before',
+                    isLeaf: false,
+                    value: {},
+                  },
+                  after: {
+                    label: 'After',
+                    isLeaf: false,
+                    value: {},
+                  },
+                },
+              },
+            },
+          },
+          nextStepIds: ['ba-step-check-stage'],
+        }),
+        steps: JSON.stringify([
+          // Step 1: Check if stage is 'engagement' or 'exchanged'
+          {
+            id: 'ba-step-check-stage',
+            name: 'Check Stage for Invoice',
+            type: 'CODE',
+            valid: true,
+            settings: {
+              input: {
+                serverlessFunctionId: '',
+                serverlessFunctionVersion: '',
+                serverlessFunctionInput: {
+                  stage: '{{trigger.properties.after.stage}}',
+                  previousStage: '{{trigger.properties.before.stage}}',
+                  opportunityId: '{{trigger.recordId}}',
+                  workspaceId: '{{trigger.workspaceId}}',
+                },
+              },
+              outputSchema: {
+                shouldCreateInvoice: {
+                  type: 'BOOLEAN',
+                  label: 'Should Create Invoice',
+                  value: true,
+                  isLeaf: true,
+                },
+                invoiceType: {
+                  type: 'TEXT',
+                  label: 'Invoice Type',
+                  value: 'engagement_fee',
+                  isLeaf: true,
+                },
+              },
+              errorHandlingOptions: {
+                retryOnFailure: { value: true },
+                continueOnFailure: { value: false },
+              },
+            },
+            __typename: 'WorkflowAction',
+            nextStepIds: null,
+          },
+        ]),
+        status: 'ACTIVE',
+        position: 1,
+        workflowId: BUYERS_AGENT_INVOICE_WORKFLOW_ID,
+      },
+    ])
+    .returning('*')
+    .execute();
+
+  // Create the automated trigger for the workflow
+  await entityManager
+    .createQueryBuilder()
+    .insert()
+    .into(`${schemaName}.workflowAutomatedTrigger`, [
+      'id',
+      'type',
+      'settings',
+      'workflowId',
+    ])
+    .orIgnore()
+    .values([
+      {
+        id: 'ba-trigger-stage-change',
+        type: 'DATABASE_EVENT',
+        settings: JSON.stringify({
+          eventName: 'opportunity.updated',
+          fields: ['stage'], // Only trigger when stage field changes
+        }),
+        workflowId: BUYERS_AGENT_INVOICE_WORKFLOW_ID,
       },
     ])
     .returning('*')
