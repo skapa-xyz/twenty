@@ -50,10 +50,11 @@ export class OpportunityStageChangedListener {
       `Opportunity ${opportunityId} stage changed: ${previousStage} -> ${currentStage}`,
     );
 
-    // Engagement Fee Invoice - when stage changes to 'engagement_signed'
+    // Engagement Fee Invoice - when stage changes to 'engagement'
+    // This stage indicates the engagement agreement has been signed
     if (
-      currentStage === 'engagement_signed' &&
-      previousStage !== 'engagement_signed' &&
+      currentStage === 'engagement' &&
+      previousStage !== 'engagement' &&
       opportunityData.engagementFee
     ) {
       await this.messageQueueService.add<XeroInvoiceJobData>(

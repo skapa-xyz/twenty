@@ -12,15 +12,20 @@ import {
   SEED_APPLE_WORKSPACE_ID,
   SEED_YCOMBINATOR_WORKSPACE_ID,
 } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
+import { BUYER_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/buyer-custom-field-seeds.constant';
 import { COMPANY_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/company-custom-field-seeds.constant';
+import { OPPORTUNITY_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/opportunity-custom-field-seeds.constant';
 import { PERSON_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/person-custom-field-seeds.constant';
 import { PET_CARE_AGREEMENT_CARETAKER_MORPH_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/pet-care-agreement-custom-relation-field-seeds.constant';
 import { PET_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/pet-custom-field-seeds.constant';
 import { PET_CUSTOM_RELATION_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/pet-custom-relation-field-seeds.constant';
+import { PROPERTY_SHORTLIST_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/property-shortlist-custom-field-seeds.constant';
 import { SURVEY_RESULT_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/survey-results-field-seeds.constant';
+import { BUYER_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/buyer-custom-object-seed.constant';
 import { EMPLOYMENT_HISTORY_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/employment-history-custom-object-seed.constant';
 import { PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/pet-care-agreement-custom-object-seed.constant';
 import { PET_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/pet-custom-object-seed.constant';
+import { PROPERTY_SHORTLIST_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/property-shortlist-custom-object-seed.constant';
 import { ROCKET_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/rocket-custom-object-seed.constant';
 import { SURVEY_RESULT_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/survey-results-object-seed.constant';
 import { type FieldMetadataSeed } from 'src/engine/workspace-manager/dev-seeder/metadata/types/field-metadata-seed.type';
@@ -85,10 +90,20 @@ export class DevSeederMetadataService {
         // Junction objects (minimal pivots)
         { seed: EMPLOYMENT_HISTORY_CUSTOM_OBJECT_SEED },
         { seed: PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED },
+        // Buyers Agent workflow objects
+        {
+          seed: BUYER_CUSTOM_OBJECT_SEED,
+          fields: BUYER_CUSTOM_FIELD_SEEDS,
+        },
+        {
+          seed: PROPERTY_SHORTLIST_CUSTOM_OBJECT_SEED,
+          fields: PROPERTY_SHORTLIST_CUSTOM_FIELD_SEEDS,
+        },
       ],
       fields: [
         { objectName: 'company', seeds: COMPANY_CUSTOM_FIELD_SEEDS },
         { objectName: 'person', seeds: PERSON_CUSTOM_FIELD_SEEDS },
+        { objectName: 'opportunity', seeds: OPPORTUNITY_CUSTOM_FIELD_SEEDS },
       ],
       morphRelations: [
         {
@@ -130,6 +145,56 @@ export class DevSeederMetadataService {
           targetFieldLabel: 'Pet',
           targetFieldIcon: 'IconCat',
         },
+        // Buyer Agent workflow: Buyer -> PropertyShortlist
+        {
+          sourceObjectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+          name: 'shortlistedProperties',
+          label: 'Shortlisted Properties',
+          icon: 'IconHome',
+          targetObjectName: PROPERTY_SHORTLIST_CUSTOM_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Buyer',
+          targetFieldIcon: 'IconUserDollar',
+        },
+        // Buyer Agent workflow: Property -> PropertyShortlist
+        {
+          sourceObjectName: 'property',
+          name: 'interestedBuyers',
+          label: 'Interested Buyers',
+          icon: 'IconUserDollar',
+          targetObjectName: PROPERTY_SHORTLIST_CUSTOM_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Property',
+          targetFieldIcon: 'IconHome',
+        },
+        // Buyer Agent workflow: Buyer -> Opportunity
+        {
+          sourceObjectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+          name: 'opportunities',
+          label: 'Opportunities',
+          icon: 'IconTargetArrow',
+          targetObjectName: 'opportunity',
+          targetFieldLabel: 'Buyer',
+          targetFieldIcon: 'IconUserDollar',
+        },
+        // Buyer Agent workflow: Buyer -> Person (primary contact)
+        {
+          sourceObjectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+          name: 'primaryContact',
+          label: 'Primary Contact',
+          icon: 'IconUser',
+          targetObjectName: 'person',
+          targetFieldLabel: 'Buyer Account',
+          targetFieldIcon: 'IconUserDollar',
+        },
+        // Buyer Agent workflow: Buyer -> Company
+        {
+          sourceObjectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+          name: 'company',
+          label: 'Company',
+          icon: 'IconBuilding',
+          targetObjectName: 'company',
+          targetFieldLabel: 'Buyers',
+          targetFieldIcon: 'IconUserDollar',
+        },
       ],
       junctionConfigs: [
         // Employment History junction configs
@@ -158,6 +223,17 @@ export class DevSeederMetadataService {
           objectName: 'person',
           fieldName: 'caredForPets',
           junctionTargetFieldRef: `${PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED.nameSingular}.pet`,
+        },
+        // PropertyShortlist junction configs (Buyer <-> Property via PropertyShortlist)
+        {
+          objectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+          fieldName: 'shortlistedProperties',
+          junctionTargetFieldRef: `${PROPERTY_SHORTLIST_CUSTOM_OBJECT_SEED.nameSingular}.property`,
+        },
+        {
+          objectName: 'property',
+          fieldName: 'interestedBuyers',
+          junctionTargetFieldRef: `${PROPERTY_SHORTLIST_CUSTOM_OBJECT_SEED.nameSingular}.buyer`,
         },
       ],
     },
