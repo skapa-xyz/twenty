@@ -19,12 +19,14 @@ import { PERSON_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seed
 import { PET_CARE_AGREEMENT_CARETAKER_MORPH_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/pet-care-agreement-custom-relation-field-seeds.constant';
 import { PET_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/pet-custom-field-seeds.constant';
 import { PET_CUSTOM_RELATION_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/pet-custom-relation-field-seeds.constant';
+import { PROPERTY_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/property-custom-field-seeds.constant';
 import { PROPERTY_SHORTLIST_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/property-shortlist-custom-field-seeds.constant';
 import { SURVEY_RESULT_CUSTOM_FIELD_SEEDS } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-fields/constants/survey-results-field-seeds.constant';
 import { BUYER_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/buyer-custom-object-seed.constant';
 import { EMPLOYMENT_HISTORY_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/employment-history-custom-object-seed.constant';
 import { PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/pet-care-agreement-custom-object-seed.constant';
 import { PET_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/pet-custom-object-seed.constant';
+import { PROPERTY_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/property-custom-object-seed.constant';
 import { PROPERTY_SHORTLIST_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/property-shortlist-custom-object-seed.constant';
 import { ROCKET_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/rocket-custom-object-seed.constant';
 import { SURVEY_RESULT_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/dev-seeder/metadata/custom-objects/constants/survey-results-object-seed.constant';
@@ -92,6 +94,10 @@ export class DevSeederMetadataService {
         { seed: PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED },
         // Buyers Agent workflow objects
         {
+          seed: PROPERTY_CUSTOM_OBJECT_SEED,
+          fields: PROPERTY_CUSTOM_FIELD_SEEDS,
+        },
+        {
           seed: BUYER_CUSTOM_OBJECT_SEED,
           fields: BUYER_CUSTOM_FIELD_SEEDS,
         },
@@ -157,7 +163,7 @@ export class DevSeederMetadataService {
         },
         // Buyer Agent workflow: Property -> PropertyShortlist
         {
-          sourceObjectName: 'property',
+          sourceObjectName: PROPERTY_CUSTOM_OBJECT_SEED.nameSingular,
           name: 'interestedBuyers',
           label: 'Interested Buyers',
           icon: 'IconUserDollar',

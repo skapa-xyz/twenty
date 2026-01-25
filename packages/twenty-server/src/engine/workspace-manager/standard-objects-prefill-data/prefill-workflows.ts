@@ -12,9 +12,9 @@ const QUICK_LEAD_WORKFLOW_ID = '8b213cac-a68b-4ffe-817a-3ec994e9932d';
 const QUICK_LEAD_WORKFLOW_VERSION_ID = 'ac67974f-c524-4288-9d88-af8515400b68';
 
 // Buyers Agent Workflow - triggers Xero invoices on opportunity stage changes
-const BUYERS_AGENT_INVOICE_WORKFLOW_ID = 'ba-invoice-wf-001-4a2b-9c3d-5e6f7a8b9c0d';
+const BUYERS_AGENT_INVOICE_WORKFLOW_ID = 'ba1a0c3e-4a2b-4c3d-9e5f-7a8b9c0d1e2f';
 const BUYERS_AGENT_INVOICE_WORKFLOW_VERSION_ID =
-  'ba-invoice-wfv-01-4a2b-9c3d-5e6f7a8b9c0e';
+  'ba1a0c3e-4a2b-4c3d-9e5f-7a8b9c0d1e30';
 
 export const prefillWorkflows = async (
   entityManager: EntityManager,
@@ -413,12 +413,12 @@ export const prefillWorkflows = async (
               },
             },
           },
-          nextStepIds: ['ba-step-check-stage'],
+          nextStepIds: ['ba1a0c3e-4a2b-4c3d-9e5f-7a8b9c0d1e32'],
         }),
         steps: JSON.stringify([
           // Step 1: Check if stage is 'engagement' or 'exchanged'
           {
-            id: 'ba-step-check-stage',
+            id: 'ba1a0c3e-4a2b-4c3d-9e5f-7a8b9c0d1e32',
             name: 'Check Stage for Invoice',
             type: 'CODE',
             valid: true,
@@ -477,7 +477,7 @@ export const prefillWorkflows = async (
     .orIgnore()
     .values([
       {
-        id: 'ba-trigger-stage-change',
+        id: 'ba1a0c3e-4a2b-4c3d-9e5f-7a8b9c0d1e31',
         type: 'DATABASE_EVENT',
         settings: JSON.stringify({
           eventName: 'opportunity.updated',

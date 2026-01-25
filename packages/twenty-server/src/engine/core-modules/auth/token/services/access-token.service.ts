@@ -164,7 +164,13 @@ export class AccessTokenService {
   }
 
   async validateTokenByRequest(request: Request): Promise<AuthContext> {
-    const token = this.jwtWrapperService.extractJwtFromRequest()(request);
+    // Try to get token from query string first
+    let token = request.query.token as string | undefined;
+
+    // If not in query, fall back to header
+    if (!token) {
+      token = this.jwtWrapperService.extractJwtFromRequest()(request);
+    }
 
     if (!token) {
       throw new AuthException(
