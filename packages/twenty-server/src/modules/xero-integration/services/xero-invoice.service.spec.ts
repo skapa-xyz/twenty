@@ -1,12 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test, type TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 
 import { CustomError } from 'twenty-shared/utils';
 
-import { XeroInvoiceService } from './xero-invoice.service';
+import {
+  XeroInvoiceService,
+  type XeroInvoiceData,
+} from './xero-invoice.service';
 import { XeroClientService } from './xero-client.service';
-import { XeroInvoiceServiceExceptionCode } from './xero-invoice.service';
-import type { XeroInvoiceData, XeroInvoice } from './xero-invoice.service';
 
 describe('XeroInvoiceService', () => {
   let service: XeroInvoiceService;
@@ -99,7 +100,10 @@ describe('XeroInvoiceService', () => {
     it('should create an invoice successfully', async () => {
       xeroClientService.post.mockResolvedValueOnce(mockXeroInvoiceResponse);
 
-      const result = await service.createInvoice(mockWorkspaceId, mockInvoiceData);
+      const result = await service.createInvoice(
+        mockWorkspaceId,
+        mockInvoiceData,
+      );
 
       expect(result).toBeDefined();
       expect(result.invoiceID).toBe(mockInvoiceId);

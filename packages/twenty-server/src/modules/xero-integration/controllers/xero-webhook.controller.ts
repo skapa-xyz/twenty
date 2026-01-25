@@ -11,10 +11,15 @@ import {
   HttpStatus,
   Logger,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
+
 import { Request } from 'express';
-import { verifyXeroWebhookSignature } from '../utils/xero-webhook-signature.util';
-import { XeroWebhookService } from '../services/xero-webhook.service';
+
+import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
+import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
+import { verifyXeroWebhookSignature } from 'src/modules/xero-integration/utils/xero-webhook-signature.util';
+import { XeroWebhookService } from 'src/modules/xero-integration/services/xero-webhook.service';
 
 interface XeroWebhookEvent {
   resourceUrl: string;
@@ -41,6 +46,7 @@ export class XeroWebhookController {
 
   constructor(private readonly webhookService: XeroWebhookService) {
     const key = process.env.XERO_WEBHOOK_KEY;
+
     if (!key) {
       this.logger.warn(
         'XERO_WEBHOOK_KEY environment variable is not configured. Xero webhooks will not function.',
@@ -67,6 +73,7 @@ export class XeroWebhookController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
+  @UseGuards(PublicEndpointGuard, NoPermissionGuard)
   async handleWebhook(
     @Req() req: RawBodyRequest<Request>,
     @Headers('x-xero-signature') signature: string,
@@ -75,6 +82,7 @@ export class XeroWebhookController {
     this.validateConfigured();
     // Verify signature
     const rawBody = req.rawBody;
+
     if (!rawBody) {
       throw new BadRequestException('Missing raw body');
     }
@@ -94,7 +102,9 @@ export class XeroWebhookController {
       throw new BadRequestException('Invalid signature');
     }
 
-    this.logger.log(`Received Xero webhook with ${payload.events.length} events`);
+    this.logger.log(
+      `Received Xero webhook with ${payload.events.length} events`,
+    );
 
     // Process events asynchronously
     for (const event of payload.events) {

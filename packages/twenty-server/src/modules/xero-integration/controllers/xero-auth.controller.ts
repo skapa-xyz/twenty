@@ -10,11 +10,15 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
+
 import { Response, Request } from 'express';
-import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
+
+import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
+import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
+import { UserAuthGuard } from 'src/engine/guards/user-auth.guard';
 import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
-import { XeroTokenService } from '../services/xero-token.service';
-import { XeroClientService } from '../services/xero-client.service';
+import { XeroTokenService } from 'src/modules/xero-integration/services/xero-token.service';
+import { XeroClientService } from 'src/modules/xero-integration/services/xero-client.service';
 
 /**
  * Controller for handling Xero OAuth 2.0 authentication flow.
@@ -94,25 +98,17 @@ export class XeroAuthController {
    * @param res - Express response object for redirecting
    */
   @Get()
-  async initiateAuth(
-    @Query('token') token: string,
-    @Res() res: Response,
-  ): Promise<void> {
+  @UseGuards(UserAuthGuard, NoPermissionGuard)
+  async initiateAuth(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.validateConfigured();
     try {
-      // Validate the token passed as query parameter
-      if (!token) {
-        throw new UnauthorizedException('Authentication token is required');
-      }
+      const workspace = req['workspace'];
 
-      // Validate the token and extract workspace info
-      const tokenData = await this.accessTokenService.validateToken(token);
-
-      if (!tokenData.workspace || !tokenData.workspace.id) {
+      if (!workspace || !workspace.id) {
         throw new BadRequestException('Workspace context is required');
       }
 
-      const workspaceId = tokenData.workspace.id;
+      const workspaceId = workspace.id;
 
       this.logger.log(
         `Initiating Xero OAuth flow for workspace ${workspaceId}`,
@@ -157,6 +153,7 @@ export class XeroAuthController {
    * @param res - Express response object
    */
   @Get('callback')
+  @UseGuards(PublicEndpointGuard, NoPermissionGuard)
   async handleCallback(
     @Query('code') code: string,
     @Query('state') state: string,
@@ -168,6 +165,7 @@ export class XeroAuthController {
       // Handle authorization denial
       if (error) {
         this.logger.warn(`Xero authorization error: ${error}`);
+
         return res.redirect(
           `/settings/integrations?xero_error=${encodeURIComponent(error)}`,
         );
@@ -190,9 +188,7 @@ export class XeroAuthController {
       const tokenResponse = await this.exchangeCodeForTokens(code);
 
       // Extract token data
-      const expiresAt = new Date(
-        Date.now() + tokenResponse.expires_in * 1000,
-      );
+      const expiresAt = new Date(Date.now() + tokenResponse.expires_in * 1000);
 
       // Fetch tenant information from Xero
       const connections = await this.fetchXeroConnections(
@@ -244,7 +240,7 @@ export class XeroAuthController {
    * @param res - Express response object
    */
   @Get('disconnect')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserAuthGuard, NoPermissionGuard)
   async disconnect(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.validateConfigured();
     try {
@@ -332,6 +328,7 @@ export class XeroAuthController {
 
     if (!response.ok) {
       const errorText = await response.text();
+
       this.logger.error(`Xero token exchange failed: ${errorText}`);
       throw new Error(
         `Failed to exchange authorization code: ${response.statusText}`,
@@ -365,6 +362,7 @@ export class XeroAuthController {
 
     if (!response.ok) {
       const errorText = await response.text();
+
       this.logger.error(`Failed to fetch Xero connections: ${errorText}`);
       throw new Error('Failed to fetch Xero organizations');
     }

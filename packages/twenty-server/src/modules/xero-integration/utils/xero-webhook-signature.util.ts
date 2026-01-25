@@ -5,9 +5,8 @@ export function verifyXeroWebhookSignature(
   signature: string,
   webhookKey: string,
 ): boolean {
-  const payloadBuffer = typeof payload === 'string'
-    ? Buffer.from(payload, 'utf8')
-    : payload;
+  const payloadBuffer =
+    typeof payload === 'string' ? Buffer.from(payload, 'utf8') : payload;
 
   const computed = crypto
     .createHmac('sha256', webhookKey)

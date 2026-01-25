@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+
 import * as crypto from 'crypto';
+
+import { Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
 import { CustomError } from 'twenty-shared/utils';
 
-import { XeroConnectionEntity } from '../entities/xero-connection.entity';
+import { XeroConnectionEntity } from 'src/modules/xero-integration/entities/xero-connection.entity';
 
 /**
  * Error codes specific to XeroAuthService
@@ -86,7 +88,8 @@ export class XeroAuthService {
   private readonly logger = new Logger(XeroAuthService.name);
 
   // Xero OAuth2 endpoints
-  private readonly authorizationUrl = 'https://login.xero.com/identity/connect/authorize';
+  private readonly authorizationUrl =
+    'https://login.xero.com/identity/connect/authorize';
   private readonly tokenUrl = 'https://identity.xero.com/connect/token';
   private readonly connectionsUrl = 'https://api.xero.com/connections';
 
@@ -97,7 +100,7 @@ export class XeroAuthService {
 
   // Required OAuth scopes for the integration
   private readonly scopes = [
-    'offline_access',         // Required for refresh tokens
+    'offline_access', // Required for refresh tokens
     'accounting.transactions', // Invoice creation and management
     'accounting.contacts.read', // Contact lookup
     'accounting.settings.read', // Account settings
@@ -109,14 +112,19 @@ export class XeroAuthService {
     private readonly xeroConnectionRepository: Repository<XeroConnectionEntity>,
   ) {
     // Load OAuth credentials from environment (support both naming conventions)
-    this.clientId = process.env.XERO_CLIENT_ID || process.env.AUTH_XERO_CLIENT_ID || '';
-    this.clientSecret = process.env.XERO_CLIENT_SECRET || process.env.AUTH_XERO_CLIENT_SECRET || '';
-    this.callbackUrl = process.env.XERO_REDIRECT_URI || process.env.AUTH_XERO_CALLBACK_URL || '';
+    this.clientId =
+      process.env.XERO_CLIENT_ID || process.env.AUTH_XERO_CLIENT_ID || '';
+    this.clientSecret =
+      process.env.XERO_CLIENT_SECRET ||
+      process.env.AUTH_XERO_CLIENT_SECRET ||
+      '';
+    this.callbackUrl =
+      process.env.XERO_REDIRECT_URI || process.env.AUTH_XERO_CALLBACK_URL || '';
 
     if (!this.clientId || !this.clientSecret || !this.callbackUrl) {
       this.logger.error(
         'Xero OAuth credentials not configured. Required environment variables: ' +
-        'XERO_CLIENT_ID, XERO_CLIENT_SECRET, XERO_REDIRECT_URI',
+          'XERO_CLIENT_ID, XERO_CLIENT_SECRET, XERO_REDIRECT_URI',
       );
     }
   }
@@ -185,6 +193,7 @@ export class XeroAuthService {
    */
   private generateState(): string {
     const randomBytes = crypto.randomBytes(16);
+
     return randomBytes
       .toString('base64')
       .replace(/\+/g, '-')
@@ -314,6 +323,7 @@ export class XeroAuthService {
 
       // Calculate token expiration
       const tokenExpiresAt = new Date();
+
       tokenExpiresAt.setSeconds(
         tokenExpiresAt.getSeconds() + tokenResponse.expires_in,
       );
@@ -358,7 +368,7 @@ export class XeroAuthService {
 
       this.logger.log(
         `Successfully stored Xero connection for workspace ${workspaceId}, ` +
-        `tenant: ${tenant.tenantName} (${tenant.tenantId})`,
+          `tenant: ${tenant.tenantName} (${tenant.tenantId})`,
       );
 
       return savedConnection;
@@ -418,6 +428,7 @@ export class XeroAuthService {
 
       // Calculate token expiration
       const expiresAt = new Date();
+
       expiresAt.setSeconds(expiresAt.getSeconds() + tokenResponse.expires_in);
 
       // If workspace ID is provided, update the stored connection
@@ -486,7 +497,7 @@ export class XeroAuthService {
     const response = await firstValueFrom(
       this.httpService.get<XeroTenant[]>(this.connectionsUrl, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
       }),
@@ -529,7 +540,7 @@ export class XeroAuthService {
     if (!this.clientId || !this.clientSecret || !this.callbackUrl) {
       throw new CustomError(
         'Xero OAuth credentials not configured. Required environment variables: ' +
-        'AUTH_XERO_CLIENT_ID, AUTH_XERO_CLIENT_SECRET, AUTH_XERO_CALLBACK_URL',
+          'AUTH_XERO_CLIENT_ID, AUTH_XERO_CLIENT_SECRET, AUTH_XERO_CALLBACK_URL',
         XeroAuthExceptionCode.MISSING_CREDENTIALS,
       );
     }
@@ -558,6 +569,7 @@ export class XeroAuthService {
 
       // Check if state is not older than 10 minutes (600000ms)
       const age = Date.now() - stateData.timestamp;
+
       if (age > 600000) {
         throw new Error('State parameter expired');
       }
@@ -589,7 +601,9 @@ export class XeroAuthService {
       },
     );
 
-    this.logger.log(`Disconnected Xero integration for workspace ${workspaceId}`);
+    this.logger.log(
+      `Disconnected Xero integration for workspace ${workspaceId}`,
+    );
   }
 
   /**
@@ -614,6 +628,7 @@ export class XeroAuthService {
    */
   async isConnected(workspaceId: string): Promise<boolean> {
     const connection = await this.getConnection(workspaceId);
+
     return connection !== null;
   }
 }

@@ -6,12 +6,20 @@ import { ObjectType, Field } from '@nestjs/graphql';
  */
 @ObjectType('XeroConnectionStatus')
 export class XeroConnectionStatus {
-  @Field(() => Boolean, { description: 'Whether the Xero integration is connected and active' })
+  @Field(() => Boolean, {
+    description: 'Whether the Xero integration is connected and active',
+  })
   isConnected: boolean;
 
-  @Field(() => String, { nullable: true, description: 'Name of the connected Xero organization/tenant' })
+  @Field(() => String, {
+    nullable: true,
+    description: 'Name of the connected Xero organization/tenant',
+  })
   tenantName?: string;
 
-  @Field(() => Date, { nullable: true, description: 'When the connection was established' })
+  @Field(() => Date, {
+    nullable: true,
+    description: 'When the connection was established',
+  })
   connectedAt?: Date;
 }

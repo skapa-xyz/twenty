@@ -124,11 +124,10 @@ export class XeroCreateInvoiceJob {
       };
 
       // Map opportunity to Xero invoice format
-      const xeroInvoiceData =
-        this.xeroInvoiceService.mapOpportunityToInvoice(
-          workspaceId,
-          opportunityInvoiceData,
-        );
+      const xeroInvoiceData = this.xeroInvoiceService.mapOpportunityToInvoice(
+        workspaceId,
+        opportunityInvoiceData,
+      );
 
       this.logger.log(
         `Creating ${invoiceType} invoice in Xero for $${amount} - ${buyerEmail}`,
@@ -151,13 +150,14 @@ export class XeroCreateInvoiceJob {
       // 2. Or store it in a separate XeroInvoice tracking table
       // 3. Or use the reference field that links to a custom XeroInvoice object
       try {
-        await opportunityRepository.update(opportunityId, {
-          // Store invoice ID in a custom field (to be created via metadata)
-          // This is a placeholder - actual field name may vary
-          ...(invoiceType === 'engagement_fee'
+        // Store invoice ID in a custom field (created via metadata)
+        // Using Record type for dynamic custom field update
+        const updateData: Record<string, string> =
+          invoiceType === 'engagement_fee'
             ? { xeroEngagementInvoiceId: createdInvoice.invoiceID }
-            : { xeroSuccessFeeInvoiceId: createdInvoice.invoiceID }),
-        } as any);
+            : { xeroSuccessFeeInvoiceId: createdInvoice.invoiceID };
+
+        await opportunityRepository.update(opportunityId, updateData);
 
         this.logger.log(
           `Updated opportunity ${opportunityId} with Xero invoice ID ${createdInvoice.invoiceID}`,

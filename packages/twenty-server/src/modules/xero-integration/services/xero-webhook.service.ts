@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
 
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
@@ -68,6 +69,7 @@ export class XeroWebhookService {
       this.logger.warn(
         `No active Xero connection found for tenant ${event.tenantId}`,
       );
+
       return;
     }
 
@@ -173,13 +175,24 @@ export class XeroWebhookService {
         try {
           // Fetch the invoice details from Xero API to get current status
           const invoiceResponse = await this.xeroClientService.get<{
-            Invoices: any[];
+            Invoices: Array<{
+              InvoiceID: string;
+              Status: string;
+              Total: number;
+              AmountPaid: number;
+              AmountDue: number;
+              Reference?: string;
+            }>;
           }>(workspaceId, `/Invoices/${event.resourceId}`);
 
-          if (!invoiceResponse?.Invoices || invoiceResponse.Invoices.length === 0) {
+          if (
+            !invoiceResponse?.Invoices ||
+            invoiceResponse.Invoices.length === 0
+          ) {
             this.logger.warn(
               `Invoice ${event.resourceId} not found in Xero API response`,
             );
+
             return;
           }
 
@@ -199,8 +212,8 @@ export class XeroWebhookService {
             timestamp: event.eventDateUtc,
           });
 
-          // Get opportunity repository
-          const opportunityRepository =
+          // Get opportunity repository (unused - prepared for future enhancement)
+          const _opportunityRepository =
             await this.globalWorkspaceOrmManager.getRepository(
               workspaceId,
               OpportunityWorkspaceEntity,
@@ -278,18 +291,29 @@ export class XeroWebhookService {
         try {
           // Fetch the contact details from Xero API
           const contactResponse = await this.xeroClientService.get<{
-            Contacts: any[];
+            Contacts: Array<{
+              ContactID: string;
+              Name: string;
+              EmailAddress?: string;
+              IsCustomer?: boolean;
+              IsSupplier?: boolean;
+            }>;
           }>(workspaceId, `/Contacts/${event.resourceId}`);
 
-          if (!contactResponse?.Contacts || contactResponse.Contacts.length === 0) {
+          if (
+            !contactResponse?.Contacts ||
+            contactResponse.Contacts.length === 0
+          ) {
             this.logger.warn(
               `Contact ${event.resourceId} not found in Xero API response`,
             );
+
             return;
           }
 
           const xeroContact = contactResponse.Contacts[0];
-          const isCompany = xeroContact.IsCustomer === true || xeroContact.IsSupplier === true;
+          const isCompany =
+            xeroContact.IsCustomer === true || xeroContact.IsSupplier === true;
 
           this.logger.debug({
             event: 'contact.updated',
@@ -302,8 +326,8 @@ export class XeroWebhookService {
             timestamp: event.eventDateUtc,
           });
 
-          // Get repositories for both persons and companies
-          const personRepository =
+          // Get repositories for both persons and companies (unused - prepared for future enhancement)
+          const _personRepository =
             await this.globalWorkspaceOrmManager.getRepository(
               workspaceId,
               PersonWorkspaceEntity,
@@ -312,7 +336,7 @@ export class XeroWebhookService {
               },
             );
 
-          const companyRepository =
+          const _companyRepository =
             await this.globalWorkspaceOrmManager.getRepository(
               workspaceId,
               CompanyWorkspaceEntity,

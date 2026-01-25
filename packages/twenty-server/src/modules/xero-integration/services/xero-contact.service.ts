@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { CustomError } from 'twenty-shared/utils';
 
 import { XeroClientService } from 'src/modules/xero-integration/services/xero-client.service';
@@ -8,8 +9,6 @@ import type {
   UpdateXeroContactInput,
   XeroContact,
   XeroContactResponse,
-  XeroPhone,
-  XeroAddress,
 } from 'src/modules/xero-integration/types/xero-contact.types';
 
 export enum XeroContactServiceExceptionCode {
@@ -72,7 +71,12 @@ export class XeroContactService {
     );
 
     // Validate that we have at least a name or email
-    if (!contactData.email && !contactData.firstName && !contactData.lastName && !contactData.companyName) {
+    if (
+      !contactData.email &&
+      !contactData.firstName &&
+      !contactData.lastName &&
+      !contactData.companyName
+    ) {
       throw new CustomError(
         'Contact data must include at least an email, name, or company name',
         XeroContactServiceExceptionCode.INVALID_CONTACT_DATA,
@@ -91,12 +95,14 @@ export class XeroContactService {
           this.logger.log(
             `Found existing Xero contact: ${existingContact.contactID}`,
           );
+
           return existingContact;
         }
       }
 
       // If not found by email, create new contact
       this.logger.log('Contact not found, creating new Xero contact');
+
       return await this.createContact(workspaceId, contactData);
     } catch (error) {
       this.logger.error(
@@ -137,6 +143,7 @@ export class XeroContactService {
       // If 404, contact doesn't exist - return null
       if (error.response?.status === 404) {
         this.logger.log(`Xero contact ${contactId} not found`);
+
         return null;
       }
 
@@ -186,6 +193,7 @@ export class XeroContactService {
 
       if (response.contacts && response.contacts.length > 0) {
         this.logger.log(`Successfully updated Xero contact ${contactId}`);
+
         return response.contacts[0];
       }
 
@@ -274,9 +282,11 @@ export class XeroContactService {
 
       if (response.contacts && response.contacts.length > 0) {
         const createdContact = response.contacts[0];
+
         this.logger.log(
           `Successfully created Xero contact: ${createdContact.contactID}`,
         );
+
         return createdContact;
       }
 
@@ -308,11 +318,13 @@ export class XeroContactService {
     // Determine the contact name
     // Priority: Company name > Full name > Email
     let name: string;
+
     if (contactData.companyName) {
       name = contactData.companyName;
     } else if (contactData.firstName || contactData.lastName) {
       const firstName = contactData.firstName || '';
       const lastName = contactData.lastName || '';
+
       name = `${firstName} ${lastName}`.trim();
     } else if (contactData.email) {
       name = contactData.email;
@@ -366,6 +378,7 @@ export class XeroContactService {
     if (contactData.firstName || contactData.lastName) {
       const firstName = contactData.firstName || '';
       const lastName = contactData.lastName || '';
+
       updates.name = `${firstName} ${lastName}`.trim();
       updates.firstName = contactData.firstName || undefined;
       updates.lastName = contactData.lastName || undefined;

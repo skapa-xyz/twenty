@@ -1,12 +1,13 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { CustomError } from 'twenty-shared/utils';
 
-import { XeroConnectionEntity } from '../entities/xero-connection.entity';
+import { XeroConnectionEntity } from 'src/modules/xero-integration/entities/xero-connection.entity';
 
 /**
  * Error codes specific to XeroClientService
@@ -67,7 +68,7 @@ export class XeroClientService {
    * @param config - Optional Axios request configuration
    * @returns The response data from Xero API
    */
-  async get<T = any>(
+  async get<T = unknown>(
     workspaceId: string,
     endpoint: string,
     config?: AxiosRequestConfig,
@@ -84,10 +85,10 @@ export class XeroClientService {
    * @param config - Optional Axios request configuration
    * @returns The response data from Xero API
    */
-  async post<T = any>(
+  async post<T = unknown>(
     workspaceId: string,
     endpoint: string,
-    data?: any,
+    data?: Record<string, unknown>,
     config?: AxiosRequestConfig,
   ): Promise<T> {
     return this.request<T>(workspaceId, 'POST', endpoint, data, config);
@@ -102,10 +103,10 @@ export class XeroClientService {
    * @param config - Optional Axios request configuration
    * @returns The response data from Xero API
    */
-  async put<T = any>(
+  async put<T = unknown>(
     workspaceId: string,
     endpoint: string,
-    data?: any,
+    data?: Record<string, unknown>,
     config?: AxiosRequestConfig,
   ): Promise<T> {
     return this.request<T>(workspaceId, 'PUT', endpoint, data, config);
@@ -126,7 +127,7 @@ export class XeroClientService {
     workspaceId: string,
     method: 'GET' | 'POST' | 'PUT',
     endpoint: string,
-    data?: any,
+    data?: Record<string, unknown>,
     config?: AxiosRequestConfig,
     isRetry = false,
   ): Promise<T> {
@@ -219,10 +220,10 @@ export class XeroClientService {
     const accessToken = connection.encryptedAccessToken;
 
     return {
-      'Authorization': `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
       'Xero-tenant-id': connection.tenantId,
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     };
   }
 
@@ -253,7 +254,7 @@ export class XeroClientService {
           {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
-              'Authorization': `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+              Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
             },
           },
         ),
@@ -267,6 +268,7 @@ export class XeroClientService {
 
       // Calculate token expiration time
       const tokenExpiresAt = new Date();
+
       tokenExpiresAt.setSeconds(tokenExpiresAt.getSeconds() + expiresIn);
 
       // Update the connection with new tokens

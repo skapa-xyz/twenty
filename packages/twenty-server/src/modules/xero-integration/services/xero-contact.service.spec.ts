@@ -1,11 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { XeroContactService } from './xero-contact.service';
-import { XeroClientService } from './xero-client.service';
+import { Test, type TestingModule } from '@nestjs/testing';
+
 import type {
   CRMContactData,
   XeroContact,
   XeroContactResponse,
-} from '../types/xero-contact.types';
+} from 'src/modules/xero-integration/types/xero-contact.types';
+
+import { XeroContactService } from './xero-contact.service';
+import { XeroClientService } from './xero-client.service';
 
 describe('XeroContactService', () => {
   let service: XeroContactService;
@@ -96,6 +98,7 @@ describe('XeroContactService', () => {
       const createResponse: XeroContactResponse = {
         contacts: [mockXeroContact],
       };
+
       xeroClientService.post.mockResolvedValueOnce(createResponse);
 
       const result = await service.findOrCreateContact(
@@ -153,7 +156,9 @@ describe('XeroContactService', () => {
 
       await expect(
         service.findOrCreateContact(mockWorkspaceId, invalidData),
-      ).rejects.toThrow('Contact data must include at least an email, name, or company name');
+      ).rejects.toThrow(
+        'Contact data must include at least an email, name, or company name',
+      );
     });
 
     it('should handle contact without email', async () => {
@@ -196,6 +201,7 @@ describe('XeroContactService', () => {
 
     it('should return null when contact not found (404)', async () => {
       const notFoundError = new Error('Not found');
+
       (notFoundError as any).response = { status: 404 };
 
       xeroClientService.get.mockRejectedValueOnce(notFoundError);
@@ -215,6 +221,7 @@ describe('XeroContactService', () => {
 
     it('should throw error for non-404 errors', async () => {
       const serverError = new Error('Server error');
+
       (serverError as any).response = { status: 500 };
 
       xeroClientService.get.mockRejectedValueOnce(serverError);
@@ -329,6 +336,7 @@ describe('XeroContactService', () => {
 
     it('should throw error when update fails', async () => {
       const updateError = new Error('Update failed');
+
       xeroClientService.post.mockRejectedValueOnce(updateError);
 
       await expect(

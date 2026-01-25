@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+
 import { verifyXeroWebhookSignature } from './xero-webhook-signature.util';
 
 describe('verifyXeroWebhookSignature', () => {
@@ -20,10 +21,12 @@ describe('verifyXeroWebhookSignature', () => {
     entropy: 'random-string',
   });
 
-  function generateValidSignature(payload: string | Buffer, key: string): string {
-    const payloadBuffer = typeof payload === 'string'
-      ? Buffer.from(payload, 'utf8')
-      : payload;
+  function generateValidSignature(
+    payload: string | Buffer,
+    key: string,
+  ): string {
+    const payloadBuffer =
+      typeof payload === 'string' ? Buffer.from(payload, 'utf8') : payload;
 
     return crypto
       .createHmac('sha256', key)
@@ -34,7 +37,11 @@ describe('verifyXeroWebhookSignature', () => {
   describe('with valid signatures', () => {
     it('should return true for a valid signature with string payload', () => {
       const signature = generateValidSignature(testPayload, testWebhookKey);
-      const result = verifyXeroWebhookSignature(testPayload, signature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        testPayload,
+        signature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(true);
     });
@@ -42,7 +49,11 @@ describe('verifyXeroWebhookSignature', () => {
     it('should return true for a valid signature with Buffer payload', () => {
       const payloadBuffer = Buffer.from(testPayload, 'utf8');
       const signature = generateValidSignature(payloadBuffer, testWebhookKey);
-      const result = verifyXeroWebhookSignature(payloadBuffer, signature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        payloadBuffer,
+        signature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(true);
     });
@@ -50,7 +61,11 @@ describe('verifyXeroWebhookSignature', () => {
     it('should handle empty payload correctly', () => {
       const emptyPayload = '';
       const signature = generateValidSignature(emptyPayload, testWebhookKey);
-      const result = verifyXeroWebhookSignature(emptyPayload, signature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        emptyPayload,
+        signature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(true);
     });
@@ -59,7 +74,11 @@ describe('verifyXeroWebhookSignature', () => {
   describe('with invalid signatures', () => {
     it('should return false for incorrect signature', () => {
       const invalidSignature = 'invalid-signature';
-      const result = verifyXeroWebhookSignature(testPayload, invalidSignature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        testPayload,
+        invalidSignature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(false);
     });
@@ -67,7 +86,11 @@ describe('verifyXeroWebhookSignature', () => {
     it('should return false for signature with wrong webhook key', () => {
       const signature = generateValidSignature(testPayload, testWebhookKey);
       const wrongKey = 'wrong-webhook-key';
-      const result = verifyXeroWebhookSignature(testPayload, signature, wrongKey);
+      const result = verifyXeroWebhookSignature(
+        testPayload,
+        signature,
+        wrongKey,
+      );
 
       expect(result).toBe(false);
     });
@@ -75,13 +98,21 @@ describe('verifyXeroWebhookSignature', () => {
     it('should return false for signature with modified payload', () => {
       const signature = generateValidSignature(testPayload, testWebhookKey);
       const modifiedPayload = testPayload + ' ';
-      const result = verifyXeroWebhookSignature(modifiedPayload, signature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        modifiedPayload,
+        signature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(false);
     });
 
     it('should return false for empty signature', () => {
-      const result = verifyXeroWebhookSignature(testPayload, '', testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        testPayload,
+        '',
+        testWebhookKey,
+      );
 
       expect(result).toBe(false);
     });
@@ -96,7 +127,11 @@ describe('verifyXeroWebhookSignature', () => {
 
       // timingSafeEqual throws when buffer lengths don't match
       // Our function should catch this and return false
-      const result = verifyXeroWebhookSignature(testPayload, shorterSignature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        testPayload,
+        shorterSignature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(false);
     });
@@ -104,7 +139,11 @@ describe('verifyXeroWebhookSignature', () => {
     it('should handle special characters in payload', () => {
       const specialPayload = '{"test": "value with 特殊字符 and émojis 🎉"}';
       const signature = generateValidSignature(specialPayload, testWebhookKey);
-      const result = verifyXeroWebhookSignature(specialPayload, signature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        specialPayload,
+        signature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(true);
     });
@@ -122,7 +161,11 @@ describe('verifyXeroWebhookSignature', () => {
         }),
       });
       const signature = generateValidSignature(largePayload, testWebhookKey);
-      const result = verifyXeroWebhookSignature(largePayload, signature, testWebhookKey);
+      const result = verifyXeroWebhookSignature(
+        largePayload,
+        signature,
+        testWebhookKey,
+      );
 
       expect(result).toBe(true);
     });
@@ -132,7 +175,11 @@ describe('verifyXeroWebhookSignature', () => {
     it('should handle webhook key with special characters', () => {
       const specialKey = 'key-with-@#$%^&*()-_=+[]{}|;:,.<>?';
       const signature = generateValidSignature(testPayload, specialKey);
-      const result = verifyXeroWebhookSignature(testPayload, signature, specialKey);
+      const result = verifyXeroWebhookSignature(
+        testPayload,
+        signature,
+        specialKey,
+      );
 
       expect(result).toBe(true);
     });
@@ -141,8 +188,16 @@ describe('verifyXeroWebhookSignature', () => {
       const payloadBuffer = Buffer.from(testPayload, 'utf8');
       const signature = generateValidSignature(payloadBuffer, testWebhookKey);
 
-      const resultWithBuffer = verifyXeroWebhookSignature(payloadBuffer, signature, testWebhookKey);
-      const resultWithString = verifyXeroWebhookSignature(testPayload, signature, testWebhookKey);
+      const resultWithBuffer = verifyXeroWebhookSignature(
+        payloadBuffer,
+        signature,
+        testWebhookKey,
+      );
+      const resultWithString = verifyXeroWebhookSignature(
+        testPayload,
+        signature,
+        testWebhookKey,
+      );
 
       expect(resultWithBuffer).toBe(true);
       expect(resultWithString).toBe(true);

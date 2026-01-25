@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+
 import * as crypto from 'crypto';
-import { XeroConnectionEntity } from '../entities/xero-connection.entity';
+
+import { Repository } from 'typeorm';
+
+import { XeroConnectionEntity } from 'src/modules/xero-integration/entities/xero-connection.entity';
 
 /**
  * Interface representing Xero OAuth tokens and metadata.
@@ -89,6 +92,7 @@ export class XeroTokenService {
     private readonly connectionRepository: Repository<XeroConnectionEntity>,
   ) {
     const key = process.env.XERO_ENCRYPTION_KEY;
+
     if (!key || key.length !== 64) {
       this.logger.warn(
         'XERO_ENCRYPTION_KEY not configured or invalid. Xero token encryption will not function. ' +
@@ -146,6 +150,7 @@ export class XeroTokenService {
     );
 
     let encrypted = cipher.update(text, 'utf8', 'hex');
+
     encrypted += cipher.final('hex');
 
     const authTag = cipher.getAuthTag();
@@ -181,9 +186,11 @@ export class XeroTokenService {
       this.encryptionKey!,
       iv,
     );
+
     decipher.setAuthTag(authTag);
 
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+
     decrypted += decipher.final('utf8');
 
     return decrypted;

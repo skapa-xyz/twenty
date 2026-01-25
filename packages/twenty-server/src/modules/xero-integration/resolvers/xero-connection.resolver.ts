@@ -1,13 +1,14 @@
-import { UseFilters, UseGuards, UsePipes } from '@nestjs/common';
+import { UseFilters, UseGuards, UsePipes, Logger } from '@nestjs/common';
 import { Query, Resolver, Mutation } from '@nestjs/graphql';
 
 import { AuthGraphqlApiExceptionFilter } from 'src/engine/core-modules/auth/filters/auth-graphql-api-exception.filter';
 import { ResolverValidationPipe } from 'src/engine/core-modules/graphql/pipes/resolver-validation.pipe';
+import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { AuthWorkspace } from 'src/engine/decorators/auth/auth-workspace.decorator';
 import { WorkspaceAuthGuard } from 'src/engine/guards/workspace-auth.guard';
-import { XeroConnectionStatus } from '../types/xero-connection-status.type';
-import { XeroTokenService } from '../services/xero-token.service';
+import { XeroConnectionStatus } from 'src/modules/xero-integration/types/xero-connection-status.type';
+import { XeroTokenService } from 'src/modules/xero-integration/services/xero-token.service';
 
 /**
  * GraphQL resolver for Xero connection status.
@@ -18,12 +19,15 @@ import { XeroTokenService } from '../services/xero-token.service';
 @UseFilters(AuthGraphqlApiExceptionFilter)
 @UseGuards(WorkspaceAuthGuard)
 export class XeroConnectionResolver {
+  private readonly logger = new Logger(XeroConnectionResolver.name);
+
   constructor(private readonly xeroTokenService: XeroTokenService) {}
 
   /**
    * Query the Xero connection status for the current workspace.
    * Returns connection information if connected, or null if not connected.
    */
+  @UseGuards(NoPermissionGuard)
   @Query(() => XeroConnectionStatus, {
     nullable: true,
     description: 'Get the Xero connection status for the current workspace',
@@ -31,6 +35,9 @@ export class XeroConnectionResolver {
   async xeroConnection(
     @AuthWorkspace() workspace: WorkspaceEntity,
   ): Promise<XeroConnectionStatus | null> {
+    this.logger.log(
+      `xeroConnection query called for workspace ${workspace?.id}`,
+    );
     const tokens = await this.xeroTokenService.getTokens(workspace.id);
 
     if (!tokens) {
@@ -48,6 +55,7 @@ export class XeroConnectionResolver {
    * Disconnect the Xero integration for the current workspace.
    * This marks the connection as inactive, preventing further API calls.
    */
+  @UseGuards(NoPermissionGuard)
   @Mutation(() => Boolean, {
     description: 'Disconnect the Xero integration for the current workspace',
   })
@@ -55,6 +63,7 @@ export class XeroConnectionResolver {
     @AuthWorkspace() workspace: WorkspaceEntity,
   ): Promise<boolean> {
     await this.xeroTokenService.markDisconnected(workspace.id);
+
     return true;
   }
 }

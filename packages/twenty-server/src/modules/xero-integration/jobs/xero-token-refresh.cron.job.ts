@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
 
@@ -9,8 +10,8 @@ import { Processor } from 'src/engine/core-modules/message-queue/decorators/proc
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { SentryCronMonitor } from 'src/engine/core-modules/cron/sentry-cron-monitor.decorator';
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
-import { XeroConnectionEntity } from '../entities/xero-connection.entity';
-import { XeroTokenService } from '../services/xero-token.service';
+import { XeroConnectionEntity } from 'src/modules/xero-integration/entities/xero-connection.entity';
+import { XeroTokenService } from 'src/modules/xero-integration/services/xero-token.service';
 
 /**
  * Cron pattern for Xero token refresh job.
@@ -94,11 +95,13 @@ export class XeroTokenRefreshCronJob {
       this.logger.warn(
         'Skipping Xero token refresh - OAuth credentials not configured',
       );
+
       return;
     }
 
     // Calculate the cutoff time: current time + refresh window
     const refreshCutoffTime = new Date();
+
     refreshCutoffTime.setMinutes(
       refreshCutoffTime.getMinutes() + TOKEN_REFRESH_WINDOW_MINUTES,
     );
@@ -115,6 +118,7 @@ export class XeroTokenRefreshCronJob {
 
     if (expiringConnections.length === 0) {
       this.logger.log('No Xero tokens require refresh at this time');
+
       return;
     }
 
@@ -192,7 +196,7 @@ export class XeroTokenRefreshCronJob {
           {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
-              'Authorization': `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+              Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
             },
           },
         ),
@@ -206,6 +210,7 @@ export class XeroTokenRefreshCronJob {
 
       // Calculate new token expiration time
       const tokenExpiresAt = new Date();
+
       tokenExpiresAt.setSeconds(tokenExpiresAt.getSeconds() + expiresIn);
 
       // Save the new encrypted tokens via XeroTokenService

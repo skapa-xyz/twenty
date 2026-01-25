@@ -1,18 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test, type TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+
+import { type Repository } from 'typeorm';
 import { of, throwError } from 'rxjs';
-import { AxiosResponse } from 'axios';
+import { type AxiosResponse } from 'axios';
+import { CustomError } from 'twenty-shared/utils';
 
 import {
   XeroAuthService,
-  XeroAuthExceptionCode,
-  XeroTokenResponse,
-  XeroTenant,
-} from '../xero-auth.service';
-import { XeroConnectionEntity } from '../../entities/xero-connection.entity';
-import { CustomError } from 'twenty-shared/utils';
+  type XeroTokenResponse,
+  type XeroTenant,
+} from 'src/modules/xero-integration/services/xero-auth.service';
+import { XeroConnectionEntity } from 'src/modules/xero-integration/entities/xero-connection.entity';
 
 describe('XeroAuthService', () => {
   let service: XeroAuthService;
@@ -104,11 +104,13 @@ describe('XeroAuthService', () => {
 
       // Validate URL structure
       const url = new URL(result.url);
+
       expect(url.hostname).toBe('login.xero.com');
       expect(url.pathname).toBe('/identity/connect/authorize');
 
       // Validate query parameters
       const params = url.searchParams;
+
       expect(params.get('response_type')).toBe('code');
       expect(params.get('client_id')).toBe(mockEnv.XERO_CLIENT_ID);
       expect(params.get('redirect_uri')).toBe(mockEnv.XERO_REDIRECT_URI);
@@ -118,6 +120,7 @@ describe('XeroAuthService', () => {
 
       // Validate scopes
       const scopes = params.get('scope');
+
       expect(scopes).toContain('offline_access');
       expect(scopes).toContain('accounting.transactions');
     });
@@ -129,10 +132,12 @@ describe('XeroAuthService', () => {
 
       const url = new URL(result.url);
       const encodedState = url.searchParams.get('state');
+
       expect(encodedState).toBeTruthy();
 
       // Decode state
       const decodedState = service.decodeAndValidateState(encodedState!);
+
       expect(decodedState.workspaceId).toBe(workspaceId);
       expect(decodedState.state).toBe(result.state);
     });
@@ -364,9 +369,7 @@ describe('XeroAuthService', () => {
 
       jest
         .spyOn(httpService, 'post')
-        .mockReturnValue(
-          throwError(() => new Error('Token exchange failed')),
-        );
+        .mockReturnValue(throwError(() => new Error('Token exchange failed')));
 
       await expect(
         service.exchangeCodeForTokens(code, codeVerifier, workspaceId),
@@ -405,8 +408,14 @@ describe('XeroAuthService', () => {
         workspaceId,
       );
 
-      expect(result).toHaveProperty('accessToken', mockTokenResponse.access_token);
-      expect(result).toHaveProperty('refreshToken', mockTokenResponse.refresh_token);
+      expect(result).toHaveProperty(
+        'accessToken',
+        mockTokenResponse.access_token,
+      );
+      expect(result).toHaveProperty(
+        'refreshToken',
+        mockTokenResponse.refresh_token,
+      );
       expect(result).toHaveProperty('expiresAt');
       expect(result.expiresAt).toBeInstanceOf(Date);
 
@@ -521,9 +530,9 @@ describe('XeroAuthService', () => {
     });
 
     it('should throw error for malformed base64', () => {
-      expect(() => service.decodeAndValidateState('not-valid-base64!@#')).toThrow(
-        CustomError,
-      );
+      expect(() =>
+        service.decodeAndValidateState('not-valid-base64!@#'),
+      ).toThrow(CustomError);
     });
   });
 
