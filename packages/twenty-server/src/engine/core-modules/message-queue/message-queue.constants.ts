@@ -21,4 +21,5 @@ export enum MessageQueue {
   aiQueue = 'ai-queue',
   propertyMatchQueue = 'property-match-queue',
   xeroInvoiceQueue = 'xero-invoice-queue',
+  formsLiveQueue = 'formslive-queue',
 }

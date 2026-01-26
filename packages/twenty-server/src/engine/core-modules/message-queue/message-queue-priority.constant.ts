@@ -19,4 +19,5 @@ export const MESSAGE_QUEUE_PRIORITY = {
   [MessageQueue.aiQueue]: 5,
   [MessageQueue.propertyMatchQueue]: 4,
   [MessageQueue.xeroInvoiceQueue]: 3,
+  [MessageQueue.formsLiveQueue]: 3,
 };

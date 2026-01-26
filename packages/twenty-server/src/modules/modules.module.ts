@@ -7,6 +7,7 @@ import { FavoriteModule } from 'src/modules/favorite/favorite.module';
 import { MessagingModule } from 'src/modules/messaging/messaging.module';
 import { WorkflowModule } from 'src/modules/workflow/workflow.module';
 import { XeroModule } from 'src/modules/xero-integration/xero.module';
+import { FormsLiveModule } from 'src/modules/formslive-integration/formslive.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { XeroModule } from 'src/modules/xero-integration/xero.module';
     FavoriteFolderModule,
     FavoriteModule,
     XeroModule,
+    FormsLiveModule,
   ],
   providers: [],
   exports: [],
