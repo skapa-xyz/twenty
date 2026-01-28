@@ -4,6 +4,7 @@ import { HttpModule } from '@nestjs/axios';
 
 import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
+import { WorkspaceDomainsModule } from 'src/engine/core-modules/domain/workspace-domains/workspace-domains.module';
 
 import { XeroConnectionEntity } from './entities/xero-connection.entity';
 import { XeroAuthController } from './controllers/xero-auth.controller';
@@ -64,6 +65,8 @@ import { XeroConnectionResolver } from './resolvers/xero-connection.resolver';
     // Auth modules for JwtAuthGuard dependencies
     TokenModule,
     WorkspaceCacheStorageModule,
+    // Provides WorkspaceDomainsService for workspace-aware OAuth redirects
+    WorkspaceDomainsModule,
   ],
   controllers: [
     // OAuth authentication endpoints

@@ -15,8 +15,8 @@ import { Response, Request } from 'express';
 
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
-import { UserAuthGuard } from 'src/engine/guards/user-auth.guard';
 import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
+import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { XeroTokenService } from 'src/modules/xero-integration/services/xero-token.service';
 import { XeroClientService } from 'src/modules/xero-integration/services/xero-client.service';
 
@@ -43,6 +43,7 @@ export class XeroAuthController {
     private readonly tokenService: XeroTokenService,
     private readonly clientService: XeroClientService,
     private readonly accessTokenService: AccessTokenService,
+    private readonly workspaceDomainsService: WorkspaceDomainsService,
   ) {
     // Load environment variables
     const clientId = process.env.XERO_CLIENT_ID;
@@ -98,24 +99,31 @@ export class XeroAuthController {
    * @param res - Express response object for redirecting
    */
   @Get()
-  @UseGuards(UserAuthGuard, NoPermissionGuard)
   async initiateAuth(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.validateConfigured();
     try {
-      const workspace = req['workspace'];
+      // Manually validate the JWT token from query param or Authorization header,
+      // since UserAuthGuard relies on GqlExecutionContext middleware that doesn't
+      // run for /api/auth/* REST routes.
+      const authContext =
+        await this.accessTokenService.validateTokenByRequest(req);
+
+      const workspace = authContext.workspace;
 
       if (!workspace || !workspace.id) {
         throw new BadRequestException('Workspace context is required');
       }
 
-      const workspaceId = workspace.id;
-
       this.logger.log(
-        `Initiating Xero OAuth flow for workspace ${workspaceId}`,
+        `Initiating Xero OAuth flow for workspace ${workspace.id}`,
       );
 
-      // Build authorization URL with PKCE parameters
-      const authUrl = this.buildAuthorizationUrl(workspaceId);
+      // Build authorization URL with workspace domain config in state
+      const authUrl = this.buildAuthorizationUrl(workspace.id, {
+        subdomain: workspace.subdomain,
+        customDomain: workspace.customDomain ?? undefined,
+        isCustomDomainEnabled: workspace.isCustomDomainEnabled,
+      });
 
       // Redirect user to Xero authorization page
       res.redirect(authUrl);
@@ -157,28 +165,58 @@ export class XeroAuthController {
   async handleCallback(
     @Query('code') code: string,
     @Query('state') state: string,
-    @Query('error') error: string,
+    @Query('error') errorParam: string,
     @Res() res: Response,
   ): Promise<void> {
     this.validateConfigured();
+
+    // Parse workspace domain config from the JSON state parameter.
+    // Falls back to a relative redirect if state is missing or unparseable.
+    let workspaceId: string | undefined;
+    let workspaceDomainConfig:
+      | {
+          subdomain: string;
+          customDomain?: string;
+          isCustomDomainEnabled: boolean;
+        }
+      | undefined;
+
+    if (state) {
+      try {
+        const parsed = JSON.parse(state);
+
+        workspaceId = parsed.workspaceId;
+        workspaceDomainConfig = {
+          subdomain: parsed.subdomain,
+          customDomain: parsed.customDomain,
+          isCustomDomainEnabled: parsed.isCustomDomainEnabled ?? false,
+        };
+      } catch {
+        // Legacy fallback: state was a plain workspaceId string
+        workspaceId = state;
+      }
+    }
+
     try {
       // Handle authorization denial
-      if (error) {
-        this.logger.warn(`Xero authorization error: ${error}`);
+      if (errorParam) {
+        this.logger.warn(`Xero authorization error: ${errorParam}`);
 
-        return res.redirect(
-          `/settings/integrations?xero_error=${encodeURIComponent(error)}`,
+        const errorRedirect = this.buildWorkspaceRedirectUrl(
+          workspaceDomainConfig,
+          '/settings/integrations',
+          { xero_error: errorParam },
         );
+
+        return res.redirect(errorRedirect);
       }
 
       // Validate required parameters
-      if (!code || !state) {
+      if (!code || !workspaceId) {
         throw new BadRequestException(
           'Missing authorization code or state parameter',
         );
       }
-
-      const workspaceId = state;
 
       this.logger.log(
         `Processing Xero OAuth callback for workspace ${workspaceId}`,
@@ -216,16 +254,27 @@ export class XeroAuthController {
         `Successfully connected Xero organization "${primaryTenant.tenantName}" to workspace ${workspaceId}`,
       );
 
-      // Redirect back to settings page with success message
-      res.redirect('/settings/integrations?xero_connected=true');
+      // Redirect back to the user's workspace subdomain, not the app. admin subdomain
+      const successRedirect = this.buildWorkspaceRedirectUrl(
+        workspaceDomainConfig,
+        '/settings/integrations',
+        { xero_connected: 'true' },
+      );
+
+      res.redirect(successRedirect);
     } catch (error) {
       this.logger.error(
         `Failed to process Xero callback: ${error.message}`,
         error.stack,
       );
-      res.redirect(
-        `/settings/integrations?xero_error=${encodeURIComponent('Connection failed')}`,
+
+      const errorRedirect = this.buildWorkspaceRedirectUrl(
+        workspaceDomainConfig,
+        '/settings/integrations',
+        { xero_error: 'Connection failed' },
       );
+
+      res.redirect(errorRedirect);
     }
   }
 
@@ -240,29 +289,39 @@ export class XeroAuthController {
    * @param res - Express response object
    */
   @Get('disconnect')
-  @UseGuards(UserAuthGuard, NoPermissionGuard)
   async disconnect(@Req() req: Request, @Res() res: Response): Promise<void> {
     this.validateConfigured();
     try {
-      const workspace = req['workspace'];
+      const authContext =
+        await this.accessTokenService.validateTokenByRequest(req);
+
+      const workspace = authContext.workspace;
 
       if (!workspace || !workspace.id) {
         throw new BadRequestException('Workspace context is required');
       }
 
-      const workspaceId = workspace.id;
-
-      this.logger.log(`Disconnecting Xero for workspace ${workspaceId}`);
+      this.logger.log(`Disconnecting Xero for workspace ${workspace.id}`);
 
       // Mark connection as inactive
-      await this.tokenService.markDisconnected(workspaceId);
+      await this.tokenService.markDisconnected(workspace.id);
 
       this.logger.log(
-        `Successfully disconnected Xero from workspace ${workspaceId}`,
+        `Successfully disconnected Xero from workspace ${workspace.id}`,
       );
 
-      // Redirect back to settings
-      res.redirect('/settings/integrations?xero_disconnected=true');
+      // Redirect back to the user's workspace subdomain
+      const redirectUrl = this.buildWorkspaceRedirectUrl(
+        {
+          subdomain: workspace.subdomain,
+          customDomain: workspace.customDomain ?? undefined,
+          isCustomDomainEnabled: workspace.isCustomDomainEnabled,
+        },
+        '/settings/integrations',
+        { xero_disconnected: 'true' },
+      );
+
+      res.redirect(redirectUrl);
     } catch (error) {
       this.logger.error(
         `Failed to disconnect Xero: ${error.message}`,
@@ -277,19 +336,73 @@ export class XeroAuthController {
   /**
    * Builds the Xero authorization URL with required OAuth 2.0 parameters.
    *
-   * @param workspaceId - The workspace ID to encode in the state parameter
+   * The state parameter encodes workspace context as JSON so the callback
+   * can redirect the user back to their correct workspace subdomain.
+   *
+   * @param workspaceId - The workspace ID
+   * @param domainConfig - Workspace subdomain/custom domain configuration
    * @returns Complete authorization URL
    */
-  private buildAuthorizationUrl(workspaceId: string): string {
+  private buildAuthorizationUrl(
+    workspaceId: string,
+    domainConfig: {
+      subdomain: string;
+      customDomain?: string;
+      isCustomDomainEnabled: boolean;
+    },
+  ): string {
+    const state = JSON.stringify({
+      workspaceId,
+      subdomain: domainConfig.subdomain,
+      customDomain: domainConfig.customDomain,
+      isCustomDomainEnabled: domainConfig.isCustomDomainEnabled,
+    });
+
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       scope: this.scopes.join(' '),
-      state: workspaceId, // Pass workspace ID to maintain context
+      state,
     });
 
     return `https://login.xero.com/identity/connect/authorize?${params.toString()}`;
+  }
+
+  /**
+   * Builds a redirect URL targeting the correct workspace subdomain.
+   *
+   * Uses WorkspaceDomainsService when domain config is available, otherwise
+   * falls back to a relative path (for legacy state format).
+   */
+  private buildWorkspaceRedirectUrl(
+    domainConfig:
+      | {
+          subdomain: string;
+          customDomain?: string;
+          isCustomDomainEnabled: boolean;
+        }
+      | undefined,
+    pathname: string,
+    searchParams: Record<string, string>,
+  ): string {
+    if (!domainConfig) {
+      const qs = new URLSearchParams(searchParams).toString();
+
+      return `${pathname}?${qs}`;
+    }
+
+    const url = this.workspaceDomainsService.buildWorkspaceURL({
+      workspace: {
+        subdomain: domainConfig.subdomain,
+        customDomain: domainConfig.customDomain ?? null,
+        isCustomDomainEnabled: domainConfig.isCustomDomainEnabled,
+      },
+      pathname,
+      searchParams,
+    });
+
+    return url.toString();
   }
 
   /**
