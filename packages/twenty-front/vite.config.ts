@@ -150,12 +150,16 @@ export default defineConfig(({ command, mode }) => {
         }),
         enforce: 'pre',
       },
-      visualizer({
-        open: true,
-        gzipSize: true,
-        brotliSize: true,
-        filename: 'dist/stats.html',
-      }) as PluginOption, // https://github.com/btd/rollup-plugin-visualizer/issues/162#issuecomment-1538265997,
+      ...(isBuildCommand && process.env.CI
+        ? []
+        : [
+            visualizer({
+              open: true,
+              gzipSize: true,
+              brotliSize: true,
+              filename: 'dist/stats.html',
+            }) as PluginOption, // https://github.com/btd/rollup-plugin-visualizer/issues/162#issuecomment-1538265997
+          ]),
     ],
 
     optimizeDeps: {
