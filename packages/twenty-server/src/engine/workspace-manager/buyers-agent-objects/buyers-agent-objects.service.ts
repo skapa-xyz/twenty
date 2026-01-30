@@ -90,6 +90,36 @@ export class BuyersAgentObjectsService {
       targetFieldLabel: 'Property',
       targetFieldIcon: 'IconHome',
     },
+    // Buyer -> Opportunity
+    {
+      sourceObjectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+      name: 'opportunities',
+      label: 'Opportunities',
+      icon: 'IconTargetArrow',
+      targetObjectName: 'opportunity',
+      targetFieldLabel: 'Buyer',
+      targetFieldIcon: 'IconUserDollar',
+    },
+    // Buyer -> Person (primary contact)
+    {
+      sourceObjectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+      name: 'primaryContact',
+      label: 'Primary Contact',
+      icon: 'IconUser',
+      targetObjectName: 'person',
+      targetFieldLabel: 'Buyer Account',
+      targetFieldIcon: 'IconUserDollar',
+    },
+    // Buyer -> Company
+    {
+      sourceObjectName: BUYER_CUSTOM_OBJECT_SEED.nameSingular,
+      name: 'company',
+      label: 'Company',
+      icon: 'IconBuilding',
+      targetObjectName: 'company',
+      targetFieldLabel: 'Buyers',
+      targetFieldIcon: 'IconUserDollar',
+    },
   ];
 
   /**
