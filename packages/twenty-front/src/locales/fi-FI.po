@@ -2814,10 +2814,9 @@ msgstr ""
 msgid "Connected accounts"
 msgstr "Yhdistetyt tilit"
 
-#. js-lingui-id: bCW+p2
-#. placeholder {0}: connection?.tenantName ?? 'Xero'
+#. js-lingui-id: 7TOkkk
 #: src/modules/settings/integrations/components/SettingsIntegrationsXeroCard.tsx
-msgid "Connected to {0}"
+msgid "Connected to {tenantName}"
 msgstr ""
 
 #. js-lingui-id: W4Kgwq
