@@ -48,11 +48,13 @@ export class BuyerNameGeneratorService {
         const buyerRepo = await this.globalWorkspaceOrmManager.getRepository(
           workspaceId,
           'buyer',
+          { shouldBypassPermissionChecks: true },
         );
 
         const personRepo = await this.globalWorkspaceOrmManager.getRepository(
           workspaceId,
           'person',
+          { shouldBypassPermissionChecks: true },
         );
 
         const buyer = (await buyerRepo.findOne({
