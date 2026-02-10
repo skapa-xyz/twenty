@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { isNonEmptyString } from '@sniptt/guards';
 import isEmpty from 'lodash.isempty';
 import {
@@ -18,6 +19,8 @@ import {
   PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
 import { getColumnNameToFieldMetadataIdMap } from 'src/engine/twenty-orm/utils/get-column-name-to-field-metadata-id.util';
+
+const permissionsLogger = new Logger('PermissionsCheck');
 
 const getTargetEntityAndOperationType = (
   expressionMap: QueryExpressionMap,
@@ -90,6 +93,9 @@ export const validateOperationIsPermittedOrThrow = ({
   const objectMetadataIdForEntity = objectIdByNameSingular[entityName];
 
   if (!isNonEmptyString(objectMetadataIdForEntity)) {
+    permissionsLogger.warn(
+      `PERMISSION_DENIED: entity "${entityName}" not found in objectIdByNameSingular (op: ${operationType}). Available names: ${Object.keys(objectIdByNameSingular).join(', ')}`,
+    );
     throw new PermissionsException(
       PermissionsExceptionMessage.PERMISSION_DENIED,
       PermissionsExceptionCode.PERMISSION_DENIED,
@@ -99,6 +105,9 @@ export const validateOperationIsPermittedOrThrow = ({
   const objectMetadata = flatObjectMetadataMaps.byId[objectMetadataIdForEntity];
 
   if (!isDefined(objectMetadata)) {
+    permissionsLogger.warn(
+      `PERMISSION_DENIED: entity "${entityName}" (id: ${objectMetadataIdForEntity}) not found in flatObjectMetadataMaps (op: ${operationType})`,
+    );
     throw new PermissionsException(
       PermissionsExceptionMessage.PERMISSION_DENIED,
       PermissionsExceptionCode.PERMISSION_DENIED,
@@ -121,6 +130,9 @@ export const validateOperationIsPermittedOrThrow = ({
   switch (operationType) {
     case 'select':
       if (!permissionsForEntity?.canReadObjectRecords) {
+        permissionsLogger.warn(
+          `PERMISSION_DENIED: canReadObjectRecords=false for "${entityName}" (id: ${objectMetadataIdForEntity}). permissionsForEntity defined: ${isDefined(permissionsForEntity)}`,
+        );
         throw new PermissionsException(
           PermissionsExceptionMessage.PERMISSION_DENIED,
           PermissionsExceptionCode.PERMISSION_DENIED,
@@ -137,6 +149,9 @@ export const validateOperationIsPermittedOrThrow = ({
     case 'insert':
     case 'update':
       if (!permissionsForEntity?.canUpdateObjectRecords) {
+        permissionsLogger.warn(
+          `PERMISSION_DENIED: canUpdateObjectRecords=false for "${entityName}" (id: ${objectMetadataIdForEntity}, op: ${operationType}). permissionsForEntity defined: ${isDefined(permissionsForEntity)}`,
+        );
         throw new PermissionsException(
           PermissionsExceptionMessage.PERMISSION_DENIED,
           PermissionsExceptionCode.PERMISSION_DENIED,
@@ -159,6 +174,9 @@ export const validateOperationIsPermittedOrThrow = ({
       break;
     case 'delete':
       if (!permissionsForEntity?.canDestroyObjectRecords) {
+        permissionsLogger.warn(
+          `PERMISSION_DENIED: canDestroyObjectRecords=false for "${entityName}" (id: ${objectMetadataIdForEntity}). permissionsForEntity defined: ${isDefined(permissionsForEntity)}`,
+        );
         throw new PermissionsException(
           PermissionsExceptionMessage.PERMISSION_DENIED,
           PermissionsExceptionCode.PERMISSION_DENIED,
@@ -174,6 +192,9 @@ export const validateOperationIsPermittedOrThrow = ({
     case 'restore':
     case 'soft-delete':
       if (!permissionsForEntity?.canSoftDeleteObjectRecords) {
+        permissionsLogger.warn(
+          `PERMISSION_DENIED: canSoftDeleteObjectRecords=false for "${entityName}" (id: ${objectMetadataIdForEntity}). permissionsForEntity defined: ${isDefined(permissionsForEntity)}`,
+        );
         throw new PermissionsException(
           PermissionsExceptionMessage.PERMISSION_DENIED,
           PermissionsExceptionCode.PERMISSION_DENIED,
