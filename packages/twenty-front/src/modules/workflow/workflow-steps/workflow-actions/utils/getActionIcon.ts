@@ -3,6 +3,7 @@ import { AI_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants
 import { CORE_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/CoreActions';
 import { FLOW_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/FlowActions';
 import { HUMAN_INPUT_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/HumanInputActions';
+import { INTEGRATION_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/IntegrationActions';
 import { RECORD_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/RecordActions';
 
 export const getActionIcon = (actionType: WorkflowActionType) => {
@@ -26,6 +27,8 @@ export const getActionIcon = (actionType: WorkflowActionType) => {
     case 'FILTER':
     case 'IF_ELSE':
       return FLOW_ACTIONS.find((item) => item.type === actionType)?.icon;
+    case 'XERO_CREATE_INVOICE':
+      return INTEGRATION_ACTIONS.find((item) => item.type === actionType)?.icon;
     case 'EMPTY':
       return 'IconSettingsAutomation';
     default:

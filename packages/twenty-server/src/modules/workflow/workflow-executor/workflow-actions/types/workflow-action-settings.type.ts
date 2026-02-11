@@ -2,6 +2,7 @@ import { type OutputSchema } from 'src/modules/workflow/workflow-builder/workflo
 import { type WorkflowAiAgentActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/ai-agent/types/workflow-ai-agent-action-settings.type';
 import { type WorkflowCodeActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/code/types/workflow-code-action-settings.type';
 import { type WorkflowDelayActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/delay/types/workflow-delay-action-settings.type';
+import { type WorkflowXeroCreateInvoiceActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/xero-create-invoice/types/workflow-xero-create-invoice-action-settings.type';
 import { type WorkflowFilterActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/filter/types/workflow-filter-action-settings.type';
 import { type WorkflowFormActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/form/types/workflow-form-action-settings.type';
 import { type WorkflowHttpRequestActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/http-request/types/workflow-http-request-action-settings.type';
@@ -42,4 +43,5 @@ export type WorkflowActionSettings =
   | WorkflowHttpRequestActionSettings
   | WorkflowAiAgentActionSettings
   | WorkflowDelayActionSettings
-  | WorkflowIteratorActionSettings;
+  | WorkflowIteratorActionSettings
+  | WorkflowXeroCreateInvoiceActionSettings;

@@ -499,6 +499,34 @@ export class WorkflowVersionStepOperationsWorkspaceService {
           },
         };
       }
+      case WorkflowActionType.XERO_CREATE_INVOICE: {
+        return {
+          builtStep: {
+            ...baseStep,
+            name: 'Create Xero Invoice',
+            type: WorkflowActionType.XERO_CREATE_INVOICE,
+            settings: {
+              ...BASE_STEP_DEFINITION,
+              input: {
+                contact: {
+                  name: '',
+                  emailAddress: '',
+                },
+                lineItems: [
+                  {
+                    description: '',
+                    quantity: 1,
+                    unitAmount: 0,
+                  },
+                ],
+                type: 'ACCREC',
+                status: 'DRAFT',
+                lineAmountTypes: 'Exclusive',
+              },
+            },
+          },
+        };
+      }
       case WorkflowActionType.EMPTY: {
         return {
           builtStep: {

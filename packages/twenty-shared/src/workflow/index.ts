@@ -63,6 +63,8 @@ export { workflowRunStateStepInfosSchema } from './schemas/workflow-run-state-st
 export { workflowRunStatusSchema } from './schemas/workflow-run-status-schema';
 export { workflowRunStepStatusSchema } from './schemas/workflow-run-step-status-schema';
 export { workflowTriggerSchema } from './schemas/workflow-trigger-schema';
+export { workflowXeroCreateInvoiceActionSchema } from './schemas/xero-create-invoice-action-schema';
+export { workflowXeroCreateInvoiceActionSettingsSchema } from './schemas/xero-create-invoice-action-settings-schema';
 export type { StepIfElseBranch } from './types/StepIfElseBranch';
 export type { BodyType } from './types/workflowHttpRequestStep';
 export type {

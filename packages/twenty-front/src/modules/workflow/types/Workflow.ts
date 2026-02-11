@@ -26,6 +26,7 @@ import {
   type workflowUpsertRecordActionSchema,
   type workflowWebhookTriggerSchema,
   type workflowDelayActionSchema,
+  type workflowXeroCreateInvoiceActionSchema,
 } from 'twenty-shared/workflow';
 import { type z } from 'zod';
 
@@ -60,6 +61,9 @@ export type WorkflowIteratorAction = z.infer<
 >;
 export type WorkflowAiAgentAction = z.infer<typeof workflowAiAgentActionSchema>;
 export type WorkflowEmptyAction = z.infer<typeof workflowEmptyActionSchema>;
+export type WorkflowXeroCreateInvoiceAction = z.infer<
+  typeof workflowXeroCreateInvoiceActionSchema
+>;
 
 export type WorkflowAction =
   | WorkflowCodeAction
@@ -76,6 +80,7 @@ export type WorkflowAction =
   | WorkflowAiAgentAction
   | WorkflowIteratorAction
   | WorkflowDelayAction
+  | WorkflowXeroCreateInvoiceAction
   | WorkflowEmptyAction;
 
 export type WorkflowActionType = WorkflowAction['type'];

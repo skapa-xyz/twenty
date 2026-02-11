@@ -9,6 +9,7 @@ import {
 import { AiAgentWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/ai-agent/ai-agent.workflow-action';
 import { CodeWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/code/code.workflow-action';
 import { DelayWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/delay/delay.workflow-action';
+import { XeroCreateInvoiceWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/xero-create-invoice/xero-create-invoice.workflow-action';
 import { EmptyWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/empty/empty.workflow-action';
 import { FilterWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/filter/filter.workflow-action';
 import { FormWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/form/form.workflow-action';
@@ -39,6 +40,7 @@ export class WorkflowActionFactory {
     private readonly aiAgentWorkflowAction: AiAgentWorkflowAction,
     private readonly emptyWorkflowAction: EmptyWorkflowAction,
     private readonly delayWorkflowAction: DelayWorkflowAction,
+    private readonly xeroCreateInvoiceWorkflowAction: XeroCreateInvoiceWorkflowAction,
   ) {}
 
   get(stepType: WorkflowActionType): WorkflowAction {
@@ -73,6 +75,8 @@ export class WorkflowActionFactory {
         return this.emptyWorkflowAction;
       case WorkflowActionType.DELAY:
         return this.delayWorkflowAction;
+      case WorkflowActionType.XERO_CREATE_INVOICE:
+        return this.xeroCreateInvoiceWorkflowAction;
       default:
         throw new WorkflowStepExecutorException(
           `Workflow step executor not found for step type '${stepType}'`,

@@ -18,6 +18,7 @@ import { WorkflowEditActionIfElse } from '@/workflow/workflow-steps/workflow-act
 import { WorkflowEditActionFormBuilder } from '@/workflow/workflow-steps/workflow-actions/form-action/components/WorkflowEditActionFormBuilder';
 import { WorkflowEditActionHttpRequest } from '@/workflow/workflow-steps/workflow-actions/http-request-action/components/WorkflowEditActionHttpRequest';
 import { WorkflowEditActionIterator } from '@/workflow/workflow-steps/workflow-actions/iterator-action/components/WorkflowEditActionIterator';
+import { WorkflowEditActionXeroCreateInvoice } from '@/workflow/workflow-steps/workflow-actions/xero-create-invoice-action/components/WorkflowEditActionXeroCreateInvoice';
 import { WorkflowEditTriggerCronForm } from '@/workflow/workflow-trigger/components/WorkflowEditTriggerCronForm';
 import { WorkflowEditTriggerDatabaseEventForm } from '@/workflow/workflow-trigger/components/WorkflowEditTriggerDatabaseEventForm';
 import { WorkflowEditTriggerManual } from '@/workflow/workflow-trigger/components/WorkflowEditTriggerManual';
@@ -235,6 +236,15 @@ export const WorkflowStepDetail = ({
         case 'DELAY': {
           return (
             <WorkflowEditActionDelay
+              key={stepId}
+              action={stepDefinition.definition}
+              actionOptions={props}
+            />
+          );
+        }
+        case 'XERO_CREATE_INVOICE': {
+          return (
+            <WorkflowEditActionXeroCreateInvoice
               key={stepId}
               action={stepDefinition.definition}
               actionOptions={props}

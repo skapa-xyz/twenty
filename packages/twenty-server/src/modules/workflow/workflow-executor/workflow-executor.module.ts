@@ -14,6 +14,7 @@ import { FormActionModule } from 'src/modules/workflow/workflow-executor/workflo
 import { IfElseActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/if-else/if-else-action.module';
 import { IteratorActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/iterator/iterator-action.module';
 import { RecordCRUDActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/record-crud-action.module';
+import { XeroCreateInvoiceActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/xero-create-invoice/xero-create-invoice-action.module';
 import { ToolExecutorWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/tool-executor-workflow-action';
 import { WorkflowExecutorWorkspaceService } from 'src/modules/workflow/workflow-executor/workspace-services/workflow-executor.workspace-service';
 import { WorkflowRunModule } from 'src/modules/workflow/workflow-runner/workflow-run/workflow-run.module';
@@ -32,6 +33,7 @@ import { WorkflowRunModule } from 'src/modules/workflow/workflow-runner/workflow
     IteratorActionModule,
     AiAgentActionModule,
     EmptyActionModule,
+    XeroCreateInvoiceActionModule,
     FeatureFlagModule,
     ToolModule,
   ],

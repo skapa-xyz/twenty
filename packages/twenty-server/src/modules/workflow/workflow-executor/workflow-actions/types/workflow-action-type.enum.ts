@@ -14,4 +14,5 @@ export enum WorkflowActionType {
   ITERATOR = 'ITERATOR',
   EMPTY = 'EMPTY',
   DELAY = 'DELAY',
+  XERO_CREATE_INVOICE = 'XERO_CREATE_INVOICE',
 }

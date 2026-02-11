@@ -30,6 +30,8 @@ export const getActionIconColorOrThrow = ({
       return theme.color.green12;
     case 'AI_AGENT':
       return theme.color.pink;
+    case 'XERO_CREATE_INVOICE':
+      return theme.color.blue;
     default:
       assertUnreachable(actionType, `Unsupported action type: ${actionType}`);
   }

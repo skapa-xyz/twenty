@@ -6,6 +6,7 @@ import { AI_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants
 import { CORE_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/CoreActions';
 import { FLOW_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/FlowActions';
 import { HUMAN_INPUT_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/HumanInputActions';
+import { INTEGRATION_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/IntegrationActions';
 import { RECORD_ACTIONS } from '@/workflow/workflow-steps/workflow-actions/constants/RecordActions';
 import { useIsFeatureEnabled } from '@/workspace/hooks/useIsFeatureEnabled';
 import { useLingui } from '@lingui/react/macro';
@@ -68,6 +69,14 @@ export const CommandMenuWorkflowSelectAction = ({
       </RightDrawerWorkflowSelectStepTitle>
       <WorkflowActionMenuItems
         actions={HUMAN_INPUT_ACTIONS}
+        onClick={onActionSelected}
+      />
+
+      <RightDrawerWorkflowSelectStepTitle>
+        {t`Integration`}
+      </RightDrawerWorkflowSelectStepTitle>
+      <WorkflowActionMenuItems
+        actions={INTEGRATION_ACTIONS}
         onClick={onActionSelected}
       />
     </RightDrawerStepListContainer>

@@ -14,6 +14,7 @@ import { workflowSendEmailActionSchema } from './send-email-action-schema';
 import { workflowUpdateRecordActionSchema } from './update-record-action-schema';
 import { workflowUpsertRecordActionSchema } from './upsert-record-action-schema';
 import { workflowDelayActionSchema } from './workflow-delay-action-schema';
+import { workflowXeroCreateInvoiceActionSchema } from './xero-create-invoice-action-schema';
 
 export const workflowActionSchema = z.discriminatedUnion('type', [
   workflowCodeActionSchema,
@@ -30,5 +31,6 @@ export const workflowActionSchema = z.discriminatedUnion('type', [
   workflowIfElseActionSchema,
   workflowIteratorActionSchema,
   workflowDelayActionSchema,
+  workflowXeroCreateInvoiceActionSchema,
   workflowEmptyActionSchema,
 ]);
